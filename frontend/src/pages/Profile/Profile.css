@@ -1,0 +1,155 @@
+.profile-page {
+  padding: 2rem 0;
+  min-height: 70vh;
+}
+
+.profile-layout {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 2rem;
+}
+
+.profile-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.profile-card {
+  background-color: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.profile-avatar {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  font-size: 2.5rem;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem;
+}
+
+.profile-card h3 {
+  font-size: 1.3rem;
+  color: #333;
+  margin-bottom: 0.5rem;
+}
+
+.profile-card p {
+  color: #666;
+  font-size: 0.95rem;
+}
+
+.profile-nav {
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.nav-item {
+  width: 100%;
+  padding: 1rem 1.5rem;
+  background-color: white;
+  border: none;
+  border-bottom: 1px solid #e0e0e0;
+  text-align: left;
+  color: #333;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.nav-item:last-child {
+  border-bottom: none;
+}
+
+.nav-item:hover {
+  background-color: #f8f9fa;
+}
+
+.nav-item.active {
+  background-color: #007bff;
+  color: white;
+}
+
+.nav-item.logout {
+  color: #dc3545;
+}
+
+.profile-content {
+  background-color: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.profile-section h2 {
+  font-size: 1.8rem;
+  color: #333;
+  margin-bottom: 2rem;
+}
+
+.profile-section h3 {
+  font-size: 1.3rem;
+  color: #333;
+  margin: 2rem 0 1rem;
+}
+
+.form-hint {
+  display: block;
+  color: #666;
+  font-size: 0.85rem;
+  margin-top: 0.25rem;
+  font-style: italic;
+}
+
+@media (max-width: 1024px) {
+  .profile-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-sidebar {
+    flex-direction: row;
+  }
+
+  .profile-nav {
+    flex: 1;
+  }
+
+  .nav-item {
+    border-bottom: none;
+    border-right: 1px solid #e0e0e0;
+  }
+
+  .nav-item:last-child {
+    border-right: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .profile-sidebar {
+    flex-direction: column;
+  }
+
+  .nav-item {
+    border-right: none;
+    border-bottom: 1px solid #e0e0e0;
+  }
+
+  .nav-item:last-child {
+    border-bottom: none;
+  }
+
+  .profile-content {
+    padding: 1.5rem;
+  }
+}
