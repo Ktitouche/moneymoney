@@ -10,6 +10,9 @@ import Header from './components/Header/Header';
 import Footer from './components/Footer/Footer';
 
 import Home from './pages/Home/Home';
+import Categories from './pages/Categories/Categories';
+import Nouveautes from './pages/Nouveautes/Nouveautes';
+import Promotions from './pages/Promotions/Promotions';
 import Products from './pages/Products/Products';
 import ProductDetail from './pages/ProductDetail/ProductDetail';
 import Cart from './pages/Cart/Cart';
@@ -30,6 +33,9 @@ function App() {
             <main>
               <Routes>
                 <Route path="/" element={<Home />} />
+                <Route path="/categories" element={<Categories />} />
+                <Route path="/nouveautes" element={<Nouveautes />} />
+                <Route path="/promotions" element={<Promotions />} />
                 <Route path="/produits" element={<Products />} />
                 <Route path="/produit/:id" element={<ProductDetail />} />
                 <Route path="/panier" element={<Cart />} />
