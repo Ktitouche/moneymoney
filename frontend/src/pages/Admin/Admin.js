@@ -81,7 +81,7 @@ const Dashboard = () => {
       <div className="stats-grid">
         <div className="stat-card">
           <h3>Ventes du mois</h3>
-          <p className="stat-value">0 €</p>
+          <p className="stat-value">0 DA</p>
         </div>
         <div className="stat-card">
           <h3>Commandes</h3>
@@ -131,9 +131,10 @@ const ProductsManagement = () => {
         api.get('/products?limite=100')
       ]);
       setCategories(catRes.data || []);
-      setProduits((prodRes.data && prodRes.data.produits) || []);
+      setProduits(prodRes.data?.produits || []);
     } catch (err) {
-      toast.error("Erreur lors du chargement des données produits");
+      toast.error('Erreur lors du chargement des données');
+      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -158,31 +159,33 @@ const ProductsManagement = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
       const fd = new FormData();
-      fd.append('nom', form.nom);
-      fd.append('description', form.description);
-      fd.append('prix', form.prix);
-      if (form.prixPromo) fd.append('prixPromo', form.prixPromo);
-      fd.append('categorie', form.categorie);
-      fd.append('stock', form.stock);
-      if (form.marque) fd.append('marque', form.marque);
+      Object.entries(form).forEach(([key, value]) => {
+        if (key === 'enVedette') {
+          fd.append(key, String(value));
+        } else if (value) {
+          fd.append(key, value);
+        }
+      });
       fd.append('caracteristiques', JSON.stringify([]));
-      fd.append('enVedette', String(form.enVedette));
       images.forEach((file) => fd.append('images', file));
 
-      const res = await api.post('/products', fd, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
-      const nouveau = res.data && res.data.produit ? res.data.produit : null;
-      if (nouveau) setProduits((prev) => [nouveau, ...prev]);
-      toast.success('Produit créé avec succès');
-      setForm({ nom: '', description: '', prix: '', prixPromo: '', categorie: '', stock: '', marque: '', enVedette: false });
-      setImages([]);
-      e.target.reset();
+      const res = await api.post('/products', fd);
+      const nouveau = res.data?.produit;
+      if (nouveau) {
+        setProduits((prev) => [nouveau, ...prev]);
+        toast.success('Produit créé avec succès');
+        setForm({ nom: '', description: '', prix: '', prixPromo: '', categorie: '', stock: '', marque: '', enVedette: false });
+        setImages([]);
+        e.target.reset();
+      }
     } catch (err) {
-      const msg = err?.response?.data?.message || 'Erreur lors de la création du produit';
-      toast.error(msg);
+      toast.error(err?.response?.data?.message || 'Erreur lors de la création');
+      console.error(err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -216,33 +219,37 @@ const ProductsManagement = () => {
   const handleEditSubmit = async (e) => {
     e.preventDefault();
     if (!editingProduct || !editForm) return;
+
+    setLoading(true);
     try {
       const fd = new FormData();
-      fd.append('nom', editForm.nom);
-      fd.append('description', editForm.description);
-      fd.append('prix', editForm.prix);
-      if (editForm.prixPromo) fd.append('prixPromo', editForm.prixPromo);
-      fd.append('categorie', editForm.categorie);
-      fd.append('stock', editForm.stock);
-      if (editForm.marque) fd.append('marque', editForm.marque);
-      fd.append('enVedette', String(editForm.enVedette));
-      fd.append('caracteristiques', JSON.stringify(editForm.caracteristiques || []));
+      Object.entries(editForm).forEach(([key, value]) => {
+        if (key === 'caracteristiques') {
+          fd.append(key, JSON.stringify(value || []));
+        } else if (key === 'enVedette') {
+          fd.append(key, String(value));
+        } else if (value) {
+          fd.append(key, value);
+        }
+      });
       editImages.forEach((file) => fd.append('images', file));
 
-      const res = await api.put(`/products/${editingProduct._id}`, fd, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
-      const updated = res.data?.produit || res.data?.product || res.data;
+      const res = await api.put(`/products/${editingProduct._id}`, fd);
+      const updated = res.data?.produit || res.data?.product;
+
       if (updated?._id) {
-        setProduits((prev) => prev.map((p) => (p._id === updated._id ? { ...p, ...updated } : p)));
-        toast.success('Produit mis à jour');
+        setProduits((prev) => prev.map((p) => p._id === updated._id ? updated : p));
       } else {
-        toast.success('Produit mis à jour');
+        await fetchData();
       }
+
+      toast.success('Produit mis à jour avec succès');
       cancelEdit();
     } catch (err) {
-      const msg = err?.response?.data?.message || 'Erreur lors de la mise à jour du produit';
-      toast.error(msg);
+      toast.error(err?.response?.data?.message || 'Erreur lors de la mise à jour');
+      console.error(err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -314,66 +321,6 @@ const ProductsManagement = () => {
 
       {viewMode === 'list' && (
         <>
-          {editingProduct && editForm && (
-            <div className="card" style={{ marginBottom: '20px' }}>
-              <h4>Modifier le produit</h4>
-              <form onSubmit={handleEditSubmit}>
-                <div className="form-row">
-                  <label>Nom</label>
-                  <input name="nom" value={editForm.nom} onChange={handleEditChange} required />
-                </div>
-                <div className="form-row">
-                  <label>Description</label>
-                  <textarea name="description" value={editForm.description} onChange={handleEditChange} required />
-                </div>
-                <div className="form-grid">
-                  <div className="form-row">
-                    <label>Prix (DA)</label>
-                    <input name="prix" type="number" step="0.01" value={editForm.prix} onChange={handleEditChange} required />
-                  </div>
-                  <div className="form-row">
-                    <label>Prix promo (DA)</label>
-                    <input name="prixPromo" type="number" step="0.01" value={editForm.prixPromo} onChange={handleEditChange} />
-                  </div>
-                </div>
-                <div className="form-grid">
-                  <div className="form-row">
-                    <label>Catégorie</label>
-                    <select name="categorie" value={editForm.categorie} onChange={handleEditChange} required>
-                      <option value="">Choisir…</option>
-                      {categories.map((c) => (
-                        <option key={c._id} value={c._id}>{c.nom}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className="form-row">
-                    <label>Stock</label>
-                    <input name="stock" type="number" value={editForm.stock} onChange={handleEditChange} required />
-                  </div>
-                </div>
-                <div className="form-grid">
-                  <div className="form-row">
-                    <label>Marque</label>
-                    <input name="marque" value={editForm.marque} onChange={handleEditChange} />
-                  </div>
-                  <div className="form-row">
-                    <label>En vedette</label>
-                    <input name="enVedette" type="checkbox" checked={editForm.enVedette} onChange={handleEditChange} />
-                  </div>
-                </div>
-                <div className="form-row">
-                  <label>Nouvelle image (optionnel)</label>
-                  <input name="images" type="file" multiple accept="image/*" onChange={handleEditImages} />
-                  <small>Si vous ajoutez des images, elles remplaceront les actuelles.</small>
-                </div>
-                <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginTop: '10px' }}>
-                  <button type="submit" disabled={loading}>Enregistrer</button>
-                  <button type="button" onClick={cancelEdit}>Annuler</button>
-                </div>
-              </form>
-            </div>
-          )}
-
           {loading ? (
             <p>Chargement…</p>
           ) : (
@@ -409,6 +356,71 @@ const ProductsManagement = () => {
           )}
         </>
       )}
+
+      {editingProduct && editForm && (
+        <div className="modal-overlay" onClick={cancelEdit}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h4>Modifier le produit</h4>
+              <button type="button" className="modal-close" onClick={cancelEdit}>×</button>
+            </div>
+            <form onSubmit={handleEditSubmit}>
+              <div className="form-row">
+                <label>Nom</label>
+                <input name="nom" value={editForm.nom} onChange={handleEditChange} required />
+              </div>
+              <div className="form-row">
+                <label>Description</label>
+                <textarea name="description" value={editForm.description} onChange={handleEditChange} required />
+              </div>
+              <div className="form-grid">
+                <div className="form-row">
+                  <label>Prix (DA)</label>
+                  <input name="prix" type="number" step="0.01" value={editForm.prix} onChange={handleEditChange} required />
+                </div>
+                <div className="form-row">
+                  <label>Prix promo (DA)</label>
+                  <input name="prixPromo" type="number" step="0.01" value={editForm.prixPromo} onChange={handleEditChange} />
+                </div>
+              </div>
+              <div className="form-grid">
+                <div className="form-row">
+                  <label>Catégorie</label>
+                  <select name="categorie" value={editForm.categorie} onChange={handleEditChange} required>
+                    <option value="">Choisir…</option>
+                    {categories.map((c) => (
+                      <option key={c._id} value={c._id}>{c.nom}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="form-row">
+                  <label>Stock</label>
+                  <input name="stock" type="number" value={editForm.stock} onChange={handleEditChange} required />
+                </div>
+              </div>
+              <div className="form-grid">
+                <div className="form-row">
+                  <label>Marque</label>
+                  <input name="marque" value={editForm.marque} onChange={handleEditChange} />
+                </div>
+                <div className="form-row">
+                  <label>En vedette</label>
+                  <input name="enVedette" type="checkbox" checked={editForm.enVedette} onChange={handleEditChange} />
+                </div>
+              </div>
+              <div className="form-row">
+                <label>Nouvelle image (optionnel)</label>
+                <input name="images" type="file" multiple accept="image/*" onChange={handleEditImages} />
+                <small>Si vous ajoutez des images, elles remplaceront les actuelles.</small>
+              </div>
+              <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginTop: '10px' }}>
+                <button type="submit" disabled={loading}>Enregistrer</button>
+                <button type="button" onClick={cancelEdit}>Annuler</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
@@ -419,12 +431,13 @@ const CategoriesManagement = () => {
   const [image, setImage] = useState(null);
 
   const loadCategories = async () => {
+    setLoading(true);
     try {
-      setLoading(true);
       const res = await api.get('/categories');
       setCategories(res.data || []);
     } catch (err) {
       toast.error('Erreur lors du chargement des catégories');
+      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -441,26 +454,31 @@ const CategoriesManagement = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
       const fd = new FormData();
       fd.append('nom', form.nom);
       fd.append('description', form.description);
       if (image) fd.append('image', image);
-      const res = await api.post('/categories', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
-      const cat = res.data && res.data.category ? res.data.category : res.data?.category;
-      // Certaines réponses retournent { category }, sinon recharger
+
+      const res = await api.post('/categories', fd);
+      const cat = res.data?.category;
+
       if (cat) {
         setCategories((prev) => [cat, ...prev]);
       } else {
         await loadCategories();
       }
+
       toast.success('Catégorie créée avec succès');
       setForm({ nom: '', description: '' });
       setImage(null);
       e.target.reset();
     } catch (err) {
-      const msg = err?.response?.data?.message || 'Erreur lors de la création de la catégorie';
-      toast.error(msg);
+      toast.error(err?.response?.data?.message || 'Erreur lors de la création');
+      console.error(err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -505,7 +523,15 @@ const CategoriesManagement = () => {
                 <tr key={c._id}>
                   <td>{c.nom}</td>
                   <td>{c.description || '—'}</td>
-                  <td>{c.image ? <img src={c.image.startsWith('http') ? c.image : `${process.env.REACT_APP_API_URL?.replace('/api', '') || 'http://localhost:5000'}/${c.image}`} alt={c.nom} style={{ height: 40 }} /> : '—'}</td>
+                  <td>
+                    {c.image ? (
+                      <img
+                        src={c.image.startsWith('http') ? c.image : `${process.env.REACT_APP_API_URL?.replace('/api', '') || 'http://localhost:5000'}/${c.image}`}
+                        alt={c.nom}
+                        style={{ height: 40, width: 40, objectFit: 'cover', borderRadius: '4px' }}
+                      />
+                    ) : '—'}
+                  </td>
                 </tr>
               ))}
               {categories.length === 0 && (
@@ -525,13 +551,14 @@ const OrdersManagement = () => {
   const [filtre, setFiltre] = useState('');
 
   const loadOrders = async () => {
+    setLoading(true);
     try {
-      setLoading(true);
       const url = filtre ? `/orders?statut=${encodeURIComponent(filtre)}` : '/orders';
       const res = await api.get(url);
-      setCommandes((res.data && res.data.commandes) || []);
+      setCommandes(res.data?.commandes || []);
     } catch (err) {
       toast.error('Erreur lors du chargement des commandes');
+      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -545,10 +572,11 @@ const OrdersManagement = () => {
   const updateStatut = async (id, statut) => {
     try {
       await api.put(`/orders/${id}/statut`, { statut });
-      toast.success('Statut mis à jour');
-      await loadOrders();
+      setCommandes((prev) => prev.map((c) => c._id === id ? { ...c, statut } : c));
+      toast.success('Statut mis à jour avec succès');
     } catch (err) {
-      toast.error("Impossible de mettre à jour le statut");
+      toast.error(err?.response?.data?.message || 'Impossible de mettre à jour le statut');
+      console.error(err);
     }
   };
 
@@ -614,12 +642,13 @@ const UsersManagement = () => {
   const [loading, setLoading] = useState(false);
 
   const loadUsers = async () => {
+    setLoading(true);
     try {
-      setLoading(true);
       const res = await api.get('/users');
       setUsers(res.data || []);
     } catch (err) {
       toast.error('Erreur lors du chargement des utilisateurs');
+      console.error(err);
     } finally {
       setLoading(false);
     }

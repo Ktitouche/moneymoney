@@ -62,7 +62,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // Créer un produit (admin uniquement)
-router.post('/', auth, isAdmin, upload.array('images', 5), async (req, res) => {
+router.post('/', upload.array('images', 5), auth, isAdmin, async (req, res) => {
   try {
     const { nom, description, prix, prixPromo, categorie, stock, marque, caracteristiques, enVedette } = req.body;
 
@@ -90,7 +90,7 @@ router.post('/', auth, isAdmin, upload.array('images', 5), async (req, res) => {
 });
 
 // Mettre à jour un produit (admin uniquement)
-router.put('/:id', auth, isAdmin, upload.array('images', 5), async (req, res) => {
+router.put('/:id', upload.array('images', 5), auth, isAdmin, async (req, res) => {
   try {
     const { nom, description, prix, prixPromo, categorie, stock, marque, caracteristiques, enVedette } = req.body;
     const images = req.files ? req.files.map((file) => file.path) : [];
