@@ -124,8 +124,8 @@ const Home = () => {
           <div className="features-grid">
             <div className="feature-card">
               <div className="feature-icon">🚚</div>
-              <h3>Livraison Gratuite</h3>
-              <p>Pour toute commande supérieure à 50€</p>
+              <h3>Livraison gratuite</h3>
+              <p>Pour toute commande supérieure à 50 DA</p>
             </div>
             <div className="feature-card">
               <div className="feature-icon">💳</div>

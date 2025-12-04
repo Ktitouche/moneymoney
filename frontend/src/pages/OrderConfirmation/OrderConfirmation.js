@@ -63,7 +63,7 @@ const OrderConfirmation = () => {
             </div>
             <div className="detail-line">
               <span>Montant total:</span>
-              <strong>{order.montantTotal.toFixed(2)} €</strong>
+              <strong>{order.montantTotal.toFixed(2)} DA</strong>
             </div>
             <div className="detail-line">
               <span>Statut:</span>

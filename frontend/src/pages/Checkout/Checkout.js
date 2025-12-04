@@ -17,7 +17,8 @@ const Checkout = () => {
     rue: user?.adresse?.rue || '',
     wilaya: '',
     telephone: user?.telephone || '',
-    typeLivraison: 'domicile'
+    typeLivraison: 'domicile',
+    pointRelais: ''
   });
   const WILAYAS = [
     { code: '01', nom: 'Adrar', prix: 600 },
@@ -26,8 +27,38 @@ const Checkout = () => {
     { code: '31', nom: 'Oran', prix: 550 },
     { code: '40', nom: 'Khenchela', prix: 700 }
   ];
+
+  const POINTS_RELAIS = {
+    'Alger': [
+      'Alger Centre - Rue Didouche Mourad',
+      'Bab Ezzouar - Centre Commercial Ardis',
+      'Hydra - Place du 1er Mai'
+    ],
+    'Oran': [
+      'Oran Centre - Boulevard de la Soummam',
+      'Es Senia - Zone Industrielle',
+      'Bir El Djir - Centre Commercial'
+    ],
+    'Blida': [
+      'Blida Centre - Rue Larbi Ben M\'hidi',
+      'Boufarik - Avenue de l\'Indépendance'
+    ],
+    'Adrar': [
+      'Adrar Centre - Place du Marché'
+    ],
+    'Khenchela': [
+      'Khenchela Centre - Avenue de la République'
+    ]
+  };
   
   const [loading, setLoading] = useState(false);
+  const [phoneError, setPhoneError] = useState('');
+
+  const validatePhone = (phone) => {
+    // Format algérien: 0X XX XX XX XX (X = 5, 6, 7)
+    const phoneRegex = /^(0)(5|6|7)[0-9]{8}$/;
+    return phoneRegex.test(phone.replace(/\s/g, ''));
+  };
 
   useEffect(() => {
     if (cart.length === 0) {
@@ -45,11 +76,29 @@ const Checkout = () => {
   }, [user, cart, navigate]);
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+    
+    // Valider le téléphone en temps réel
+    if (name === 'telephone') {
+      if (value && !validatePhone(value)) {
+        setPhoneError('Format invalide. Ex: 0550123456');
+      } else {
+        setPhoneError('');
+      }
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Valider le téléphone avant soumission
+    if (!validatePhone(formData.telephone)) {
+      setPhoneError('Numéro de téléphone invalide. Format: 0550123456');
+      toast.error('Veuillez vérifier votre numéro de téléphone');
+      return;
+    }
+    
     setLoading(true);
 
     try {
@@ -174,39 +223,20 @@ const Checkout = () => {
                       className="form-input"
                       value={formData.telephone}
                       onChange={handleChange}
+                      placeholder="Ex: 0550123456"
+                      pattern="0[5-7][0-9]{8}"
                       required
                     />
-                  </div>
-                </div>
-
-                <div className="form-row">
-                  <div className="form-group">
-                    <label className="form-label">Pays *</label>
-                    <input
-                      type="text"
-                      name="pays"
-                      className="form-input"
-                      value={formData.pays}
-                      onChange={handleChange}
-                      required
-                    />
-                  </div>
-
-                  <div className="form-group">
-                    <label className="form-label">Téléphone *</label>
-                    <input
-                      type="tel"
-                      name="telephone"
-                      className="form-input"
-                      value={formData.telephone}
-                      onChange={handleChange}
-                      required
-                    />
+                    {phoneError && (
+                      <p style={{ color: '#e74c3c', fontSize: '13px', marginTop: '5px' }}>
+                        {phoneError}
+                      </p>
+                    )}
                   </div>
                 </div>
               </section>
 
-              {/* Mode de paiement */}
+              {/* Mode de livraison */}
               <section className="checkout-section">
                 <h2>Type de livraison</h2>
                 <div className="payment-options">
@@ -231,6 +261,30 @@ const Checkout = () => {
                     <span>🏤 Point relais</span>
                   </label>
                 </div>
+
+                {/* Sélection du point relais si ce type est choisi */}
+                {formData.typeLivraison === 'point_relais' && formData.wilaya && (
+                  <div className="form-group" style={{ marginTop: '20px' }}>
+                    <label className="form-label">Choisir un point relais *</label>
+                    <select 
+                      name="pointRelais" 
+                      className="form-input" 
+                      value={formData.pointRelais} 
+                      onChange={handleChange}
+                      required={formData.typeLivraison === 'point_relais'}
+                    >
+                      <option value="">Sélectionner un point relais...</option>
+                      {POINTS_RELAIS[formData.wilaya]?.map((point, index) => (
+                        <option key={index} value={point}>{point}</option>
+                      ))}
+                    </select>
+                    {!POINTS_RELAIS[formData.wilaya] && (
+                      <p style={{ color: '#666', fontSize: '14px', marginTop: '8px' }}>
+                        Aucun point relais disponible dans cette wilaya
+                      </p>
+                    )}
+                  </div>
+                )}
               </section>
             </div>
 
@@ -249,7 +303,7 @@ const Checkout = () => {
                           <span className="order-item-qty">x {item.quantity}</span>
                         </div>
                         <span className="order-item-price">
-                          {(price * item.quantity).toFixed(2)} €
+                          {(price * item.quantity).toFixed(2)} DA
                         </span>
                       </div>
                     );
@@ -259,15 +313,15 @@ const Checkout = () => {
                 <div className="order-totals">
                   <div className="order-line">
                     <span>Sous-total:</span>
-                    <span>{subtotal.toFixed(2)} €</span>
+                    <span>{subtotal.toFixed(2)} DA</span>
                   </div>
                   <div className="order-line">
                     <span>Livraison:</span>
-                    <span>{(WILAYAS.find(w => w.nom === formData.wilaya)?.prix || 0).toFixed(2)} €</span>
+                    <span>{(WILAYAS.find(w => w.nom === formData.wilaya)?.prix || 0).toFixed(2)} DA</span>
                   </div>
                   <div className="order-line total">
                     <span>Total:</span>
-                    <span>{(subtotal + (WILAYAS.find(w => w.nom === formData.wilaya)?.prix || 0)).toFixed(2)} €</span>
+                    <span>{(subtotal + (WILAYAS.find(w => w.nom === formData.wilaya)?.prix || 0)).toFixed(2)} DA</span>
                   </div>
                 </div>
 
@@ -278,10 +332,6 @@ const Checkout = () => {
                 >
                   {loading ? 'Traitement...' : user ? 'Confirmer la commande' : 'Commander en tant qu\'invité'}
                 </button>
-
-                <p className="security-note">
-                  🔒 Paiement 100% sécurisé
-                </p>
               </div>
             </aside>
           </div>

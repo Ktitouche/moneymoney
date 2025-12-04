@@ -192,11 +192,11 @@ const ProductsManagement = () => {
         </div>
         <div className="form-grid">
           <div className="form-row">
-            <label>Prix (€)</label>
+            <label>Prix (DA)</label>
             <input name="prix" type="number" step="0.01" value={form.prix} onChange={handleChange} required />
           </div>
           <div className="form-row">
-            <label>Prix promo (€)</label>
+            <label>Prix promo (DA)</label>
             <input name="prixPromo" type="number" step="0.01" value={form.prixPromo} onChange={handleChange} />
           </div>
         </div>
@@ -253,7 +253,7 @@ const ProductsManagement = () => {
                 <tr key={p._id}>
                   <td>{p.nom}</td>
                   <td>{p.categorie?.nom || '—'}</td>
-                  <td>{p.prixPromo || p.prix} €</td>
+                  <td>{p.prixPromo || p.prix} DA</td>
                   <td>{p.stock}</td>
                 </tr>
               ))}
@@ -441,7 +441,7 @@ const OrdersManagement = () => {
                 <tr key={c._id}>
                   <td>{new Date(c.dateCommande).toLocaleString()}</td>
                   <td>{c.utilisateur?.nom} {c.utilisateur?.prenom}</td>
-                  <td>{c.montantTotal} €</td>
+                  <td>{c.montantTotal} DA</td>
                   <td>{c.statut}</td>
                   <td>
                     <select value={c.statut} onChange={(e) => updateStatut(c._id, e.target.value)}>

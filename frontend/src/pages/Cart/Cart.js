@@ -65,7 +65,7 @@ const Cart = () => {
                   </div>
 
                   <div className="item-price">
-                    {price.toFixed(2)} €
+                    {price.toFixed(2)} DA
                   </div>
 
                   <div className="item-quantity">
@@ -85,7 +85,7 @@ const Cart = () => {
                   </div>
 
                   <div className="item-total">
-                    {itemTotal.toFixed(2)} €
+                    {itemTotal.toFixed(2)} DA
                   </div>
 
                   <button 
@@ -111,24 +111,17 @@ const Cart = () => {
           <div className="cart-summary">
             <h2>Résumé de la commande</h2>
             
-            <div className="summary-line">
-              <span>Sous-total:</span>
-              <span>{getCartTotal().toFixed(2)} €</span>
-            </div>
 
-            <div className="summary-line">
-              <span>Livraison:</span>
-              <span>{getCartTotal() >= 50 ? 'Gratuite' : '5.00 €'}</span>
-            </div>
 
-            <div className="summary-line total">
-              <span>Total:</span>
-              <span>{(getCartTotal() + (getCartTotal() >= 50 ? 0 : 5)).toFixed(2)} €</span>
+
+            <div className="summary-row total">
+              <span>Total : </span>
+              <span>{(getCartTotal() + (getCartTotal() >= 50 ? 0 : 5)).toFixed(2)} DA</span>
             </div>
 
             {getCartTotal() < 50 && (
-              <p className="free-shipping-notice">
-                Ajoutez {(50 - getCartTotal()).toFixed(2)} € pour bénéficier de la livraison gratuite
+              <p className="free-shipping-msg">
+                Ajoutez {(50 - getCartTotal()).toFixed(2)} DA pour bénéficier de la livraison gratuite
               </p>
             )}
 

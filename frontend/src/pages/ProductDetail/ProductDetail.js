@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { FaShoppingCart, FaStar, FaMinus, FaPlus } from 'react-icons/fa';
+import { FaShoppingCart, FaMinus, FaPlus } from 'react-icons/fa';
 import api from '../../utils/api';
 import { CartContext } from '../../context/CartContext';
 import { toast } from 'react-toastify';
@@ -115,18 +115,11 @@ const ProductDetail = () => {
             
             <h1 className="product-title">{product.nom}</h1>
 
-            <div className="product-rating">
-              {[...Array(5)].map((_, i) => (
-                <FaStar key={i} className="star" />
-              ))}
-              <span>(4.5) - 125 avis</span>
-            </div>
-
             <div className="product-price-detail">
               {hasDiscount && (
-                <span className="old-price">{product.prix.toFixed(2)} €</span>
+                <span className="old-price">{product.prix.toFixed(2)} DA</span>
               )}
-              <span className="current-price">{price.toFixed(2)} €</span>
+              <span className="current-price">{price.toFixed(2)} DA</span>
             </div>
 
             {product.stock > 0 ? (

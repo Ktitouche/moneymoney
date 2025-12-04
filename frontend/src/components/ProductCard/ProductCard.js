@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { Link } from 'react-router-dom';
-import { FaShoppingCart, FaStar } from 'react-icons/fa';
+import { FaShoppingCart } from 'react-icons/fa';
 import { CartContext } from '../../context/CartContext';
 import './ProductCard.css';
 import { toast } from 'react-toastify';
@@ -53,18 +53,11 @@ const ProductCard = ({ product }) => {
             <p className="product-brand">{product.marque}</p>
           )}
 
-          <div className="product-rating">
-            {[...Array(5)].map((_, i) => (
-              <FaStar key={i} className="star" />
-            ))}
-            <span>(4.5)</span>
-          </div>
-
           <div className="product-price">
             {hasDiscount && (
-              <span className="old-price">{product.prix.toFixed(2)} €</span>
+              <span className="old-price">{product.prix.toFixed(2)} DA</span>
             )}
-            <span className="current-price">{price.toFixed(2)} €</span>
+            <span className="current-price">{price.toFixed(2)} DA</span>
           </div>
         </div>
       </Link>

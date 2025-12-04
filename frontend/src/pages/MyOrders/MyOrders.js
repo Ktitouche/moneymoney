@@ -101,8 +101,8 @@ const MyOrders = () => {
 
                 <div className="order-footer">
                   <div className="order-total">
-                    <strong>Total:</strong>
-                    <strong>{order.montantTotal.toFixed(2)} €</strong>
+                    <span>Total:</span>
+                    <strong>{order.montantTotal.toFixed(2)} DA</strong>
                   </div>
                   <button 
                     onClick={() => navigate(`/commande-confirmee/${order._id}`)}

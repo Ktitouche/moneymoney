@@ -47,17 +47,11 @@ const Promotions = () => {
                         </Link>
                     </div>
                 ) : (
-                    <>
-                        <div className="promo-banner">
-                            <div className="promo-badge">OFFRES SPÉCIALES</div>
-                            <p>Profitez de réductions jusqu'à -50% sur une sélection de produits</p>
-                        </div>
-                        <div className="products-grid">
-                            {products.map((product) => (
-                                <ProductCard key={product._id} product={product} />
-                            ))}
-                        </div>
-                    </>
+                    <div className="products-grid">
+                        {products.map((product) => (
+                            <ProductCard key={product._id} product={product} />
+                        ))}
+                    </div>
                 )}
             </div>
         </div>
