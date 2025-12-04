@@ -58,24 +58,24 @@ const Home = () => {
             <h2 className="section-title">Catégories</h2>
             <div className="categories-grid">
               {categories.map((category) => (
-                <a 
-                  key={category._id} 
+                <a
+                  key={category._id}
                   href={`/produits?categorie=${category._id}`}
                   className="category-card"
                 >
                   <div className="category-image">
                     {category.image ? (
-                      <img 
-                        src={`${process.env.REACT_APP_API_URL?.replace('/api', '')}/${category.image}`} 
+                      <img
+                        src={`${process.env.REACT_APP_API_URL?.replace('/api', '')}/${category.image}`}
                         alt={category.nom}
                         onError={(e) => {
                           e.target.src = 'https://via.placeholder.com/200x200?text=Categorie';
                         }}
                       />
                     ) : (
-                      <img 
-                        src="https://via.placeholder.com/200x200?text=Categorie" 
-                        alt={category.nom} 
+                      <img
+                        src="https://via.placeholder.com/200x200?text=Categorie"
+                        alt={category.nom}
                       />
                     )}
                   </div>
@@ -125,18 +125,14 @@ const Home = () => {
             <div className="feature-card">
               <div className="feature-icon">🚚</div>
               <h3>Livraison gratuite</h3>
-              <p>Pour toute commande supérieure à 50 DA</p>
+              <p>Pour toute commande supérieure à 10 000 DA</p>
             </div>
             <div className="feature-card">
               <div className="feature-icon">💳</div>
               <h3>Paiement Sécurisé</h3>
               <p>Vos transactions sont 100% sécurisées</p>
             </div>
-            <div className="feature-card">
-              <div className="feature-icon">↩️</div>
-              <h3>Retours Faciles</h3>
-              <p>30 jours pour changer d'avis</p>
-            </div>
+            
             <div className="feature-card">
               <div className="feature-icon">💬</div>
               <h3>Support 24/7</h3>

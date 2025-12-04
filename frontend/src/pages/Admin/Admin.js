@@ -107,6 +107,7 @@ const ProductsManagement = () => {
   const [categories, setCategories] = useState([]);
   const [produits, setProduits] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [viewMode, setViewMode] = useState('list'); // 'list' | 'add'
   const [form, setForm] = useState({
     nom: '',
     description: '',
@@ -118,6 +119,9 @@ const ProductsManagement = () => {
     enVedette: false,
   });
   const [images, setImages] = useState([]);
+  const [editingProduct, setEditingProduct] = useState(null);
+  const [editForm, setEditForm] = useState(null);
+  const [editImages, setEditImages] = useState([]);
 
   const fetchData = async () => {
     try {
@@ -146,6 +150,10 @@ const ProductsManagement = () => {
 
   const handleImages = (e) => {
     setImages(Array.from(e.target.files || []));
+  };
+
+  const handleEditImages = (e) => {
+    setEditImages(Array.from(e.target.files || []));
   };
 
   const handleSubmit = async (e) => {
@@ -178,96 +186,232 @@ const ProductsManagement = () => {
     }
   };
 
+  const openEdit = (prod) => {
+    setEditingProduct(prod);
+    setEditForm({
+      nom: prod.nom || '',
+      description: prod.description || '',
+      prix: prod.prix || '',
+      prixPromo: prod.prixPromo || '',
+      categorie: prod.categorie?._id || prod.categorie || '',
+      stock: prod.stock || 0,
+      marque: prod.marque || '',
+      enVedette: !!prod.enVedette,
+      caracteristiques: prod.caracteristiques || [],
+    });
+    setEditImages([]);
+  };
+
+  const cancelEdit = () => {
+    setEditingProduct(null);
+    setEditForm(null);
+    setEditImages([]);
+  };
+
+  const handleEditChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setEditForm((f) => ({ ...f, [name]: type === 'checkbox' ? checked : value }));
+  };
+
+  const handleEditSubmit = async (e) => {
+    e.preventDefault();
+    if (!editingProduct || !editForm) return;
+    try {
+      const fd = new FormData();
+      fd.append('nom', editForm.nom);
+      fd.append('description', editForm.description);
+      fd.append('prix', editForm.prix);
+      if (editForm.prixPromo) fd.append('prixPromo', editForm.prixPromo);
+      fd.append('categorie', editForm.categorie);
+      fd.append('stock', editForm.stock);
+      if (editForm.marque) fd.append('marque', editForm.marque);
+      fd.append('enVedette', String(editForm.enVedette));
+      fd.append('caracteristiques', JSON.stringify(editForm.caracteristiques || []));
+      editImages.forEach((file) => fd.append('images', file));
+
+      const res = await api.put(`/products/${editingProduct._id}`, fd, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      const updated = res.data?.produit || res.data?.product || res.data;
+      if (updated?._id) {
+        setProduits((prev) => prev.map((p) => (p._id === updated._id ? { ...p, ...updated } : p)));
+        toast.success('Produit mis à jour');
+      } else {
+        toast.success('Produit mis à jour');
+      }
+      cancelEdit();
+    } catch (err) {
+      const msg = err?.response?.data?.message || 'Erreur lors de la mise à jour du produit';
+      toast.error(msg);
+    }
+  };
+
   return (
     <div>
       <h2>Gestion des Produits</h2>
-      <form onSubmit={handleSubmit}>
-        <div className="form-row">
-          <label>Nom</label>
-          <input name="nom" value={form.nom} onChange={handleChange} required />
-        </div>
-        <div className="form-row">
-          <label>Description</label>
-          <textarea name="description" value={form.description} onChange={handleChange} required />
-        </div>
-        <div className="form-grid">
-          <div className="form-row">
-            <label>Prix (DA)</label>
-            <input name="prix" type="number" step="0.01" value={form.prix} onChange={handleChange} required />
-          </div>
-          <div className="form-row">
-            <label>Prix promo (DA)</label>
-            <input name="prixPromo" type="number" step="0.01" value={form.prixPromo} onChange={handleChange} />
-          </div>
-        </div>
-        <div className="form-grid">
-          <div className="form-row">
-            <label>Catégorie</label>
-            <select name="categorie" value={form.categorie} onChange={handleChange} required>
-              <option value="">Choisir…</option>
-              {categories.map((c) => (
-                <option key={c._id} value={c._id}>{c.nom}</option>
-              ))}
-            </select>
-          </div>
-          <div className="form-row">
-            <label>Stock</label>
-            <input name="stock" type="number" value={form.stock} onChange={handleChange} required />
-          </div>
-        </div>
-        <div className="form-grid">
-          <div className="form-row">
-            <label>Marque</label>
-            <input name="marque" value={form.marque} onChange={handleChange} />
-          </div>
-          <div className="form-row">
-            <label>En vedette</label>
-            <input name="enVedette" type="checkbox" checked={form.enVedette} onChange={handleChange} />
-          </div>
-        </div>
-        <div className="form-row">
-          <label>Images (max 5)</label>
-          <input name="images" type="file" multiple accept="image/*" onChange={handleImages} />
-        </div>
-        <button type="submit" disabled={loading}>Ajouter le produit</button>
-      </form>
 
-      <hr style={{ margin: '2rem 0' }} />
+      <div style={{ display: 'flex', gap: '10px', marginBottom: '20px', flexWrap: 'wrap' }}>
+        <button type="button" onClick={() => setViewMode('list')} disabled={viewMode === 'list'}>
+          Liste des produits
+        </button>
+        <button type="button" onClick={() => setViewMode('add')} disabled={viewMode === 'add'}>
+          Ajouter un produit
+        </button>
+      </div>
 
-      <h3>Liste des produits</h3>
-      {loading ? (
-        <p>Chargement…</p>
-      ) : (
-        <div className="table-wrapper">
-          <table className="table">
-            <thead>
-              <tr>
-                <th>Nom</th>
-                <th>Catégorie</th>
-                <th>Prix</th>
-                <th>Stock</th>
-              </tr>
-            </thead>
-            <tbody>
-              {produits.map((p) => (
-                <tr key={p._id}>
-                  <td>{p.nom}</td>
-                  <td>{p.categorie?.nom || '—'}</td>
-                  <td>{p.prixPromo || p.prix} DA</td>
-                  <td>{p.stock}</td>
-                </tr>
-              ))}
-              {produits.length === 0 && (
-                <tr><td colSpan="4">Aucun produit.</td></tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+      {viewMode === 'add' && (
+        <form onSubmit={handleSubmit}>
+          <div className="form-row">
+            <label>Nom</label>
+            <input name="nom" value={form.nom} onChange={handleChange} required />
+          </div>
+          <div className="form-row">
+            <label>Description</label>
+            <textarea name="description" value={form.description} onChange={handleChange} required />
+          </div>
+          <div className="form-grid">
+            <div className="form-row">
+              <label>Prix (DA)</label>
+              <input name="prix" type="number" step="0.01" value={form.prix} onChange={handleChange} required />
+            </div>
+            <div className="form-row">
+              <label>Prix promo (DA)</label>
+              <input name="prixPromo" type="number" step="0.01" value={form.prixPromo} onChange={handleChange} />
+            </div>
+          </div>
+          <div className="form-grid">
+            <div className="form-row">
+              <label>Catégorie</label>
+              <select name="categorie" value={form.categorie} onChange={handleChange} required>
+                <option value="">Choisir…</option>
+                {categories.map((c) => (
+                  <option key={c._id} value={c._id}>{c.nom}</option>
+                ))}
+              </select>
+            </div>
+            <div className="form-row">
+              <label>Stock</label>
+              <input name="stock" type="number" value={form.stock} onChange={handleChange} required />
+            </div>
+          </div>
+          <div className="form-grid">
+            <div className="form-row">
+              <label>Marque</label>
+              <input name="marque" value={form.marque} onChange={handleChange} />
+            </div>
+            <div className="form-row">
+              <label>En vedette</label>
+              <input name="enVedette" type="checkbox" checked={form.enVedette} onChange={handleChange} />
+            </div>
+          </div>
+          <div className="form-row">
+            <label>Images (max 5)</label>
+            <input name="images" type="file" multiple accept="image/*" onChange={handleImages} />
+          </div>
+          <button type="submit" disabled={loading}>Ajouter le produit</button>
+        </form>
+      )}
+
+      {viewMode === 'list' && (
+        <>
+          {editingProduct && editForm && (
+            <div className="card" style={{ marginBottom: '20px' }}>
+              <h4>Modifier le produit</h4>
+              <form onSubmit={handleEditSubmit}>
+                <div className="form-row">
+                  <label>Nom</label>
+                  <input name="nom" value={editForm.nom} onChange={handleEditChange} required />
+                </div>
+                <div className="form-row">
+                  <label>Description</label>
+                  <textarea name="description" value={editForm.description} onChange={handleEditChange} required />
+                </div>
+                <div className="form-grid">
+                  <div className="form-row">
+                    <label>Prix (DA)</label>
+                    <input name="prix" type="number" step="0.01" value={editForm.prix} onChange={handleEditChange} required />
+                  </div>
+                  <div className="form-row">
+                    <label>Prix promo (DA)</label>
+                    <input name="prixPromo" type="number" step="0.01" value={editForm.prixPromo} onChange={handleEditChange} />
+                  </div>
+                </div>
+                <div className="form-grid">
+                  <div className="form-row">
+                    <label>Catégorie</label>
+                    <select name="categorie" value={editForm.categorie} onChange={handleEditChange} required>
+                      <option value="">Choisir…</option>
+                      {categories.map((c) => (
+                        <option key={c._id} value={c._id}>{c.nom}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="form-row">
+                    <label>Stock</label>
+                    <input name="stock" type="number" value={editForm.stock} onChange={handleEditChange} required />
+                  </div>
+                </div>
+                <div className="form-grid">
+                  <div className="form-row">
+                    <label>Marque</label>
+                    <input name="marque" value={editForm.marque} onChange={handleEditChange} />
+                  </div>
+                  <div className="form-row">
+                    <label>En vedette</label>
+                    <input name="enVedette" type="checkbox" checked={editForm.enVedette} onChange={handleEditChange} />
+                  </div>
+                </div>
+                <div className="form-row">
+                  <label>Nouvelle image (optionnel)</label>
+                  <input name="images" type="file" multiple accept="image/*" onChange={handleEditImages} />
+                  <small>Si vous ajoutez des images, elles remplaceront les actuelles.</small>
+                </div>
+                <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginTop: '10px' }}>
+                  <button type="submit" disabled={loading}>Enregistrer</button>
+                  <button type="button" onClick={cancelEdit}>Annuler</button>
+                </div>
+              </form>
+            </div>
+          )}
+
+          {loading ? (
+            <p>Chargement…</p>
+          ) : (
+            <div className="table-wrapper">
+              <table className="table">
+                <thead>
+                  <tr>
+                    <th>Nom</th>
+                    <th>Catégorie</th>
+                    <th>Prix</th>
+                    <th>Stock</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {produits.map((p) => (
+                    <tr key={p._id}>
+                      <td>{p.nom}</td>
+                      <td>{p.categorie?.nom || '—'}</td>
+                      <td>{p.prixPromo || p.prix} DA</td>
+                      <td>{p.stock}</td>
+                      <td>
+                        <button type="button" onClick={() => openEdit(p)}>Modifier</button>
+                      </td>
+                    </tr>
+                  ))}
+                  {produits.length === 0 && (
+                    <tr><td colSpan="5">Aucun produit.</td></tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </>
       )}
     </div>
   );
 };
-
 const CategoriesManagement = () => {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -361,7 +505,7 @@ const CategoriesManagement = () => {
                 <tr key={c._id}>
                   <td>{c.nom}</td>
                   <td>{c.description || '—'}</td>
-                  <td>{c.image ? <img src={c.image.startsWith('http') ? c.image : `${process.env.REACT_APP_API_URL?.replace('/api','') || 'http://localhost:5000'}/${c.image}`} alt={c.nom} style={{ height: 40 }} /> : '—'}</td>
+                  <td>{c.image ? <img src={c.image.startsWith('http') ? c.image : `${process.env.REACT_APP_API_URL?.replace('/api', '') || 'http://localhost:5000'}/${c.image}`} alt={c.nom} style={{ height: 40 }} /> : '—'}</td>
                 </tr>
               ))}
               {categories.length === 0 && (

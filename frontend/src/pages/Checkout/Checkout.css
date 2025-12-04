@@ -143,6 +143,24 @@
   color: #333;
 }
 
+.field-helper {
+  margin-top: 6px;
+  font-size: 13px;
+  color: #666;
+}
+
+.field-helper.success {
+  color: #1e8f4b;
+}
+
+.field-helper.error {
+  color: #e74c3c;
+}
+
+.field-helper.info {
+  color: #666;
+}
+
 .security-note {
   text-align: center;
   color: #666;
