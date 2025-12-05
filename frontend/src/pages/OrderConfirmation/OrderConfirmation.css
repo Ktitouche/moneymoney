@@ -89,6 +89,43 @@
   line-height: 1.8;
 }
 
+.order-items {
+  background-color: #f8f9fa;
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+  text-align: left;
+}
+
+.order-items h3 {
+  font-size: 1.2rem;
+  color: #333;
+  margin-bottom: 1rem;
+}
+
+.item-line {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 1rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.item-line:last-child {
+  border-bottom: none;
+}
+
+.item-name {
+  color: #333;
+  font-weight: 600;
+}
+
+.item-qty,
+.item-price {
+  color: #555;
+  text-align: right;
+}
+
 .order-actions {
   display: flex;
   gap: 1rem;

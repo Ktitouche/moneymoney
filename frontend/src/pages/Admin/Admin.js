@@ -8,6 +8,16 @@ import './Admin.css';
 const Admin = () => {
   const { user, loading } = useContext(AuthContext);
   const navigate = useNavigate();
+  const [ordersCount, setOrdersCount] = useState(0);
+  const [lastOrderId, setLastOrderId] = useState(null);
+  const [lastNotifiedId, setLastNotifiedId] = useState(() => {
+    try {
+      return localStorage.getItem('lastNotifiedOrderId') || null;
+    } catch (err) {
+      return null;
+    }
+  });
+  const [notificationStatus, setNotificationStatus] = useState('unknown');
 
   useEffect(() => {
     // Attendre la fin du chargement de l'authentification
@@ -22,6 +32,107 @@ const Admin = () => {
       navigate('/', { replace: true });
     }
   }, [user, loading, navigate]);
+
+  useEffect(() => {
+    if (loading) return;
+    if (!user || user.role !== 'admin') return;
+
+    if (typeof Notification === 'undefined') {
+      setNotificationStatus('unsupported');
+    } else {
+      setNotificationStatus(Notification.permission || 'default');
+    }
+  }, [loading, user]);
+
+  useEffect(() => {
+    if (loading) return;
+    if (!user || user.role !== 'admin') return;
+
+    let timer;
+
+    const fetchOrdersCount = async () => {
+      try {
+        const res = await api.get('/orders?limite=1');
+        const total = res.data?.total;
+        const latest = res.data?.commandes?.[0];
+
+        if (typeof total === 'number') {
+          setOrdersCount(total);
+          const alreadyNotified = lastNotifiedId && latest?._id === lastNotifiedId;
+          if (
+            latest?._id &&
+            Notification?.permission === 'granted' &&
+            !alreadyNotified &&
+            (lastOrderId === null || latest._id !== lastOrderId)
+          ) {
+            const nom = latest.utilisateur?.nom || latest.clientGuest?.nom || latest.adresseLivraison?.nom || 'Client';
+            const prenom = latest.utilisateur?.prenom || latest.clientGuest?.prenom || latest.adresseLivraison?.prenom || '';
+            const montant = latest.montantTotal ? `${latest.montantTotal} DA` : '';
+            const produits = (latest.produits || []).map((p) => {
+              const name = p.produit?.nom || 'Produit';
+              return `${name} x${p.quantite || 1}`;
+            }).filter(Boolean);
+
+            const produitsTexte = produits.length ? ` · ${produits.join(', ')}` : '';
+            const body = `${nom} ${prenom} vient de passer une commande${montant ? ` pour ${montant}` : ''}${produitsTexte}.`;
+
+            new Notification('Nouvelle commande', {
+              body: body.trim(),
+              icon: 'https://via.placeholder.com/96?text=Shop'
+            });
+            setLastOrderId(latest._id);
+            setLastNotifiedId(latest._id);
+            try {
+              localStorage.setItem('lastNotifiedOrderId', latest._id);
+            } catch (err) {
+              // ignore storage failures
+            }
+          }
+        }
+      } catch (err) {
+        // silencieux pour ne pas polluer la console
+      }
+    };
+
+    fetchOrdersCount();
+    timer = setInterval(fetchOrdersCount, 30000); // toutes les 30s
+
+    return () => {
+      if (timer) clearInterval(timer);
+    };
+  }, [loading, user, lastOrderId, lastNotifiedId]);
+
+  const requestNotificationPermission = async () => {
+    if (typeof Notification === 'undefined') {
+      toast.error('Les notifications push ne sont pas supportées par ce navigateur.');
+      setNotificationStatus('unsupported');
+      return;
+    }
+
+    if (Notification.permission === 'granted') {
+      setNotificationStatus('granted');
+      toast.info('Notifications déjà activées.');
+      return;
+    }
+
+    if (Notification.permission === 'denied') {
+      setNotificationStatus('denied');
+      toast.warn("Notifications bloquées. Cliquez sur le cadenas à gauche de l'URL puis autorisez les notifications.");
+      return;
+    }
+
+    try {
+      const permission = await Notification.requestPermission();
+      setNotificationStatus(permission || 'default');
+      if (permission === 'granted') {
+        toast.success('Notifications push activées pour les nouvelles commandes.');
+      } else if (permission === 'denied') {
+        toast.warn("Notifications refusées. Vous pouvez changer ce réglage via le cadenas du navigateur.");
+      }
+    } catch (err) {
+      toast.error('Impossible de demander la permission de notification.');
+    }
+  };
 
   if (loading || !user) {
     return (
@@ -61,7 +172,15 @@ const Admin = () => {
 
           <div className="admin-content">
             <Routes>
-              <Route index element={<Dashboard />} />
+              <Route
+                index
+                element={
+                  <Dashboard
+                    notificationStatus={notificationStatus}
+                    onEnableNotifications={requestNotificationPermission}
+                  />
+                }
+              />
               <Route path="produits" element={<ProductsManagement />} />
               <Route path="categories" element={<CategoriesManagement />} />
               <Route path="commandes" element={<OrdersManagement />} />
@@ -74,10 +193,33 @@ const Admin = () => {
   );
 };
 
-const Dashboard = () => {
+const Dashboard = ({ notificationStatus, onEnableNotifications }) => {
+  const statusLabel = (() => {
+    if (notificationStatus === 'granted') return 'Activées';
+    if (notificationStatus === 'denied') return 'Bloquées (via le cadenas du navigateur)';
+    if (notificationStatus === 'unsupported') return 'Non supportées par ce navigateur';
+    return 'Inactives';
+  })();
+
   return (
     <div className="dashboard">
       <h2>Tableau de bord</h2>
+      <div className="notif-card">
+        <div className="notif-card-text">
+          <h3>Notifications de commandes</h3>
+          <p>Recevez une alerte bureau pour chaque nouvelle commande.</p>
+          <p className="notif-status">Statut : {statusLabel}</p>
+        </div>
+        {notificationStatus === 'unsupported' ? (
+          <div className="notif-status warning">Notifications non supportées sur ce navigateur.</div>
+        ) : notificationStatus !== 'granted' ? (
+          <button className="notif-activate-btn" onClick={onEnableNotifications}>
+            Activer les notifications
+          </button>
+        ) : (
+          <div className="notif-status success">Notifications actives</div>
+        )}
+      </div>
       <div className="stats-grid">
         <div className="stat-card">
           <h3>Ventes du mois</h3>

@@ -161,6 +161,7 @@ db.users.updateOne(
 1. Connectez-vous avec un compte admin
 2. Accédez au panel d'administration
 3. Utilisez les sections de gestion pour ajouter des catégories et produits
+4. Images produits : idéal 1000×1000 px (carré), JPG qualité ~80, poids 150–250 Ko. Max utile 1200×1200 si zoom. Compressez avant upload.
 
 ### API Endpoints
 

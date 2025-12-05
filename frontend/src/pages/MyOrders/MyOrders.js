@@ -86,25 +86,31 @@ const MyOrders = () => {
                 </div>
 
                 <div className="order-items">
-                  {order.produits.map((item, index) => (
-                    <div key={index} className="order-item">
-                      <div className="order-item-info">
-                        <span className="order-item-name">{item.produit.nom}</span>
-                        <span className="order-item-qty">Quantité: {item.quantite}</span>
+                  {(order.produits || []).map((item, index) => {
+                    const nomProduit = item?.produit?.nom || 'Produit inconnu';
+                    const quantite = item?.quantite || 0;
+                    const prixUnitaire = item?.prix || 0;
+                    const prixTotal = (prixUnitaire * quantite).toFixed(2);
+                    return (
+                      <div key={index} className="order-item">
+                        <div className="order-item-info">
+                          <span className="order-item-name">{nomProduit}</span>
+                          <span className="order-item-qty">Quantité: {quantite}</span>
+                        </div>
+                        <span className="order-item-price">
+                          {prixTotal} €
+                        </span>
                       </div>
-                      <span className="order-item-price">
-                        {(item.prix * item.quantite).toFixed(2)} €
-                      </span>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
 
                 <div className="order-footer">
                   <div className="order-total">
                     <span>Total:</span>
-                    <strong>{order.montantTotal.toFixed(2)} DA</strong>
+                    <strong>{(order.montantTotal || 0).toFixed(2)} DA</strong>
                   </div>
-                  <button 
+                  <button
                     onClick={() => navigate(`/commande-confirmee/${order._id}`)}
                     className="btn btn-outline btn-sm"
                   >

@@ -158,6 +158,56 @@ button[type="submit"],
   line-height: 1.6;
 }
 
+/* Notifications dashboard card */
+.notif-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  background: #f8fbff;
+  border: 1px solid #e2ecf7;
+  border-radius: 10px;
+  padding: 16px 18px;
+  margin-bottom: 1.5rem;
+}
+
+.notif-card-text h3 {
+  margin: 0 0 6px;
+}
+
+.notif-card-text p {
+  margin: 0 0 6px;
+  color: #4a4a4a;
+}
+
+.notif-activate-btn {
+  border: none;
+  background: #007bff;
+  color: #fff;
+  padding: 10px 14px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.notif-activate-btn:hover {
+  background: #005ec2;
+}
+
+.notif-status {
+  font-weight: 600;
+  color: #2f5d9f;
+}
+
+.notif-status.success {
+  color: #1d7a32;
+}
+
+.notif-status.warning {
+  color: #c0392b;
+}
+
 @media (max-width: 1024px) {
   .admin-layout {
     grid-template-columns: 1fr;
