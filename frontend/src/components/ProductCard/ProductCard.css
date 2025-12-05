@@ -6,6 +6,15 @@
   transition: transform 0.3s, box-shadow 0.3s;
   display: flex;
   flex-direction: column;
+  height: 100%;
+}
+
+.product-card a {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  color: inherit;
+  text-decoration: none;
 }
 
 .product-card:hover {
@@ -61,6 +70,8 @@
 .product-info {
   padding: 1rem;
   flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .product-name {

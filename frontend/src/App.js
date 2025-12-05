@@ -50,10 +50,10 @@ function App() {
             <Footer />
             <ToastContainer
               position="top-right"
-              autoClose={3000}
+              autoClose={1800}
               hideProgressBar={false}
               closeOnClick
-              pauseOnHover
+              pauseOnHover={false}
             />
           </div>
         </Router>
