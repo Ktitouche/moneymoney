@@ -17,7 +17,7 @@ const Categories = () => {
             setCategories(response.data);
             setLoading(false);
         } catch (error) {
-            console.error('Erreur lors du chargement des catégories:', error);
+            // Erreur silencieuse
             setLoading(false);
         }
     };

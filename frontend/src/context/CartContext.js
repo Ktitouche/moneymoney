@@ -8,7 +8,7 @@ export const CartProvider = ({ children }) => {
       const saved = typeof window !== 'undefined' ? localStorage.getItem('cart') : null;
       return saved ? JSON.parse(saved) : [];
     } catch (err) {
-      console.error('Failed to load cart from storage', err);
+      // Erreur silencieuse
       return [];
     }
   });
@@ -17,7 +17,7 @@ export const CartProvider = ({ children }) => {
     try {
       localStorage.setItem('cart', JSON.stringify(cart));
     } catch (err) {
-      console.error('Failed to save cart to storage', err);
+      // Erreur silencieuse
     }
   }, [cart]);
 

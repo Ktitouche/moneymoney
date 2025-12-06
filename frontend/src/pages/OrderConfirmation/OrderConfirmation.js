@@ -20,7 +20,7 @@ const OrderConfirmation = () => {
       setOrder(response.data);
       setLoading(false);
     } catch (error) {
-      console.error('Erreur:', error);
+      // Erreur silencieuse
       // Même sans les détails (ex: invité non connecté), on affiche une page de remerciement
       setOrder(null);
       setLoading(false);

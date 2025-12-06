@@ -27,7 +27,7 @@ const Home = () => {
       setFeaturedProducts(featuredRes.data.produits || []);
       setLoading(false);
     } catch (error) {
-      console.error('Erreur:', error);
+      // Erreur silencieuse
       setLoading(false);
     }
   };
@@ -132,7 +132,7 @@ const Home = () => {
               <h3>Paiement Sécurisé</h3>
               <p>Vos transactions sont 100% sécurisées</p>
             </div>
-            
+
             <div className="feature-card">
               <div className="feature-icon">💬</div>
               <h3>Support 24/7</h3>

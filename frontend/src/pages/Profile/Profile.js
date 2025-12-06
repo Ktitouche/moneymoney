@@ -41,7 +41,7 @@ const Profile = () => {
         pays: userData.adresse?.pays || ''
       });
     } catch (error) {
-      console.error('Erreur:', error);
+      // Erreur silencieuse
     }
   };
 
@@ -103,7 +103,7 @@ const Profile = () => {
           <div className="profile-content">
             <div className="profile-section">
               <h2>Informations personnelles</h2>
-              
+
               <form onSubmit={handleSubmit}>
                 <div className="form-row">
                   <div className="form-group">

@@ -32,7 +32,7 @@ const Products = () => {
       const response = await api.get('/categories');
       setCategories(response.data || []);
     } catch (error) {
-      console.error('Erreur:', error);
+      // Erreur silencieuse
     }
   };
 
@@ -60,7 +60,7 @@ const Products = () => {
       });
       setLoading(false);
     } catch (error) {
-      console.error('Erreur:', error);
+      // Erreur silencieuse
       setLoading(false);
     }
   };
@@ -147,7 +147,7 @@ const Products = () => {
                     >
                       Précédent
                     </button>
-                    
+
                     <div className="page-numbers">
                       {[...Array(pagination.totalPages)].map((_, index) => (
                         <button

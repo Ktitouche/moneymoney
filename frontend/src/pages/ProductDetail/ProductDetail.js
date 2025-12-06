@@ -26,7 +26,7 @@ const ProductDetail = () => {
       setProduct(response.data);
       setLoading(false);
     } catch (error) {
-      console.error('Erreur:', error);
+      // Erreur silencieuse
       setLoading(false);
       toast.error('Produit non trouvé');
       navigate('/produits');
@@ -74,21 +74,21 @@ const ProductDetail = () => {
                 </span>
               )}
               {product.images && product.images.length > 0 ? (
-                <img 
-                  src={`${API_URL}/${product.images[selectedImage]}`} 
+                <img
+                  src={`${API_URL}/${product.images[selectedImage]}`}
                   alt={product.nom}
                   onError={(e) => {
                     e.target.src = 'https://via.placeholder.com/600x600?text=Produit';
                   }}
                 />
               ) : (
-                <img 
-                  src="https://via.placeholder.com/600x600?text=Produit" 
-                  alt={product.nom} 
+                <img
+                  src="https://via.placeholder.com/600x600?text=Produit"
+                  alt={product.nom}
                 />
               )}
             </div>
-            
+
             {product.images && product.images.length > 1 && (
               <div className="image-thumbnails">
                 {product.images.map((image, index) => (
@@ -112,7 +112,7 @@ const ProductDetail = () => {
             {product.marque && (
               <p className="product-brand">{product.marque}</p>
             )}
-            
+
             <h1 className="product-title">{product.nom}</h1>
 
             <div className="product-price-detail">
@@ -162,7 +162,7 @@ const ProductDetail = () => {
                   </button>
                 </div>
 
-                <button 
+                <button
                   className="btn btn-primary add-to-cart-large"
                   onClick={handleAddToCart}
                 >

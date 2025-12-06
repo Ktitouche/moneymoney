@@ -21,7 +21,7 @@ const Promotions = () => {
             setProducts(promoProducts);
             setLoading(false);
         } catch (error) {
-            console.error('Erreur lors du chargement des promotions:', error);
+            // Erreur silencieuse
             setLoading(false);
         }
     };

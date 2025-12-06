@@ -24,7 +24,7 @@ const MyOrders = () => {
       setOrders(response.data);
       setLoading(false);
     } catch (error) {
-      console.error('Erreur:', error);
+      // Erreur silencieuse
       setLoading(false);
     }
   };

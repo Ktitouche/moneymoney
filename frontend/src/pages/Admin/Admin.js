@@ -49,8 +49,12 @@ const Admin = () => {
     if (!user || user.role !== 'admin') return;
 
     let timer;
+    let isChecking = false;
 
     const fetchOrdersCount = async () => {
+      if (isChecking) return; // Éviter les vérifications multiples simultanées
+      isChecking = true;
+
       try {
         const res = await api.get('/orders?limite=1');
         const total = res.data?.total;
@@ -63,7 +67,7 @@ const Admin = () => {
             latest?._id &&
             Notification?.permission === 'granted' &&
             !alreadyNotified &&
-            (lastOrderId === null || latest._id !== lastOrderId)
+            latest._id !== lastOrderId
           ) {
             const nom = latest.utilisateur?.nom || latest.clientGuest?.nom || latest.adresseLivraison?.nom || 'Client';
             const prenom = latest.utilisateur?.prenom || latest.clientGuest?.prenom || latest.adresseLivraison?.prenom || '';
@@ -76,10 +80,42 @@ const Admin = () => {
             const produitsTexte = produits.length ? ` · ${produits.join(', ')}` : '';
             const body = `${nom} ${prenom} vient de passer une commande${montant ? ` pour ${montant}` : ''}${produitsTexte}.`;
 
-            new Notification('Nouvelle commande', {
+            const notification = new Notification('🛒 Nouvelle commande', {
               body: body.trim(),
-              icon: 'https://via.placeholder.com/96?text=Shop'
+              icon: 'https://via.placeholder.com/96?text=Shop',
+              requireInteraction: true,
+              tag: `order-${latest._id}`,
+              silent: false,
+              vibrate: [200, 100, 200]
             });
+
+            // Son de notification (si supporté)
+            if ('AudioContext' in window || 'webkitAudioContext' in window) {
+              try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+
+                oscillator.frequency.value = 800;
+                oscillator.type = 'sine';
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 4);
+              } catch (err) {
+                // Son non supporté, continuer sans
+              }
+            }
+
+            // Mettre en avant la notification
+            notification.onclick = () => {
+              window.focus();
+              notification.close();
+            };
             setLastOrderId(latest._id);
             setLastNotifiedId(latest._id);
             try {
@@ -87,15 +123,20 @@ const Admin = () => {
             } catch (err) {
               // ignore storage failures
             }
+          } else if (latest?._id && latest._id !== lastOrderId) {
+            // Mettre à jour lastOrderId même si notification pas envoyée
+            setLastOrderId(latest._id);
           }
         }
       } catch (err) {
         // silencieux pour ne pas polluer la console
+      } finally {
+        isChecking = false;
       }
     };
 
     fetchOrdersCount();
-    timer = setInterval(fetchOrdersCount, 30000); // toutes les 30s
+    timer = setInterval(fetchOrdersCount, 10000); // toutes les 10s pour plus de réactivité
 
     return () => {
       if (timer) clearInterval(timer);
@@ -276,7 +317,6 @@ const ProductsManagement = () => {
       setProduits(prodRes.data?.produits || []);
     } catch (err) {
       toast.error('Erreur lors du chargement des données');
-      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -389,7 +429,6 @@ const ProductsManagement = () => {
       cancelEdit();
     } catch (err) {
       toast.error(err?.response?.data?.message || 'Erreur lors de la mise à jour');
-      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -579,7 +618,6 @@ const CategoriesManagement = () => {
       setCategories(res.data || []);
     } catch (err) {
       toast.error('Erreur lors du chargement des catégories');
-      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -700,7 +738,6 @@ const OrdersManagement = () => {
       setCommandes(res.data?.commandes || []);
     } catch (err) {
       toast.error('Erreur lors du chargement des commandes');
-      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -718,7 +755,6 @@ const OrdersManagement = () => {
       toast.success('Statut mis à jour avec succès');
     } catch (err) {
       toast.error(err?.response?.data?.message || 'Impossible de mettre à jour le statut');
-      console.error(err);
     }
   };
 
@@ -790,7 +826,6 @@ const UsersManagement = () => {
       setUsers(res.data || []);
     } catch (err) {
       toast.error('Erreur lors du chargement des utilisateurs');
-      console.error(err);
     } finally {
       setLoading(false);
     }

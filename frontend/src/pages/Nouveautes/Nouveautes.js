@@ -18,7 +18,7 @@ const Nouveautes = () => {
             setProducts(response.data.produits || response.data);
             setLoading(false);
         } catch (error) {
-            console.error('Erreur lors du chargement des nouveautés:', error);
+            // Erreur silencieuse
             setLoading(false);
         }
     };
