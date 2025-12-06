@@ -30,6 +30,10 @@ const orderSchema = new mongoose.Schema({
       required: true
     }
   }],
+  montantHT: {
+    type: Number,
+    required: false
+  },
   montantTotal: {
     type: Number,
     required: true

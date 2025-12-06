@@ -146,18 +146,21 @@ const Checkout = () => {
 
     try {
       const produitsPayload = cart.map(item => ({ produit: item._id, quantite: item.quantity }));
+
+      const adresseLivraisonData = {
+        nom: formData.nom,
+        prenom: formData.prenom,
+        rue: formData.typeLivraison === 'point_relais' ? formData.pointRelais : formData.rue,
+        wilaya: formData.wilaya,
+        telephone: sanitizePhone(formData.telephone)
+      };
+
       let response;
       if (user) {
         // Commande standard
         response = await api.post('/orders', {
           produits: produitsPayload,
-          adresseLivraison: {
-            nom: formData.nom,
-            prenom: formData.prenom,
-            rue: formData.rue,
-            wilaya: formData.wilaya,
-            telephone: sanitizePhone(formData.telephone)
-          },
+          adresseLivraison: adresseLivraisonData,
           typeLivraison: formData.typeLivraison,
           fraisLivraison: (WILAYAS.find(w => w.nom === formData.wilaya)?.prix || 0)
         });
@@ -171,13 +174,7 @@ const Checkout = () => {
             email: '',
             telephone: sanitizePhone(formData.telephone)
           },
-          adresseLivraison: {
-            nom: formData.nom,
-            prenom: formData.prenom,
-            rue: formData.rue,
-            wilaya: formData.wilaya,
-            telephone: sanitizePhone(formData.telephone)
-          },
+          adresseLivraison: adresseLivraisonData,
           typeLivraison: formData.typeLivraison,
           fraisLivraison: (WILAYAS.find(w => w.nom === formData.wilaya)?.prix || 0)
         });

@@ -7,47 +7,58 @@ const { auth, isAdmin } = require('../middleware/auth');
 // Créer une commande (utilisateur connecté)
 router.post('/', auth, async (req, res) => {
   try {
-    const { produits, adresseLivraison, modePaiement } = req.body;
-    
+    const { produits, adresseLivraison, modePaiement, typeLivraison, fraisLivraison } = req.body;
+
     // Calculer le montant total
     let montantTotal = 0;
     const produitsCommande = [];
-    
+
     for (const item of produits) {
       const produit = await Product.findById(item.produit);
-      
+
       if (!produit) {
         return res.status(404).json({ message: `Produit ${item.produit} non trouvé` });
       }
-      
+
       if (produit.stock < item.quantite) {
         return res.status(400).json({ message: `Stock insuffisant pour ${produit.nom}` });
       }
-      
+
       const prix = produit.prixPromo || produit.prix;
       montantTotal += prix * item.quantite;
-      
+
       produitsCommande.push({
         produit: item.produit,
         quantite: item.quantite,
         prix: prix
       });
-      
+
       // Réduire le stock
       produit.stock -= item.quantite;
       await produit.save();
     }
-    
-    const commande = new Order({
+
+    const fees = typeof fraisLivraison === 'number' ? fraisLivraison : 0;
+
+    const orderData = {
       utilisateur: req.user.id,
       produits: produitsCommande,
-      montantTotal,
+      montantHT: montantTotal,
+      montantTotal: montantTotal + fees,
       adresseLivraison,
-      modePaiement
-    });
-    
+      modePaiement: modePaiement || 'a_la_livraison',
+      fraisLivraison: fees
+    };
+
+    // Assigner typeLivraison seulement si défini
+    if (typeLivraison) {
+      orderData.typeLivraison = typeLivraison;
+    }
+
+    const commande = new Order(orderData);
+
     await commande.save();
-    
+
     res.status(201).json({ message: 'Commande créée avec succès', commande });
   } catch (error) {
     res.status(500).json({ message: 'Erreur serveur', error: error.message });
@@ -85,9 +96,12 @@ router.post('/guest', async (req, res) => {
       await produit.save();
     }
 
+    const fees = typeof fraisLivraison === 'number' ? fraisLivraison : 0;
+
     const commande = new Order({
       produits: produitsCommande,
-      montantTotal,
+      montantHT: montantTotal,
+      montantTotal: montantTotal + fees,
       clientGuest: {
         nom: clientGuest.nom || '',
         prenom: clientGuest.prenom || '',
@@ -97,7 +111,7 @@ router.post('/guest', async (req, res) => {
       adresseLivraison,
       modePaiement: 'a_la_livraison',
       typeLivraison: typeLivraison || 'domicile',
-      fraisLivraison: typeof fraisLivraison === 'number' ? fraisLivraison : 0
+      fraisLivraison: fees
     });
 
     await commande.save();
@@ -113,7 +127,7 @@ router.get('/mes-commandes', auth, async (req, res) => {
     const commandes = await Order.find({ utilisateur: req.user.id })
       .populate('produits.produit', 'nom images prix')
       .sort({ dateCommande: -1 });
-    
+
     res.json(commandes);
   } catch (error) {
     res.status(500).json({ message: 'Erreur serveur', error: error.message });
@@ -124,18 +138,18 @@ router.get('/mes-commandes', auth, async (req, res) => {
 router.get('/', auth, isAdmin, async (req, res) => {
   try {
     const { statut, page = 1, limite = 20 } = req.query;
-    
+
     const query = statut ? { statut } : {};
-    
+
     const commandes = await Order.find(query)
       .populate('utilisateur', 'nom prenom email')
       .populate('produits.produit', 'nom')
       .limit(limite * 1)
       .skip((page - 1) * limite)
       .sort({ dateCommande: -1 });
-    
+
     const total = await Order.countDocuments(query);
-    
+
     res.json({
       commandes,
       totalPages: Math.ceil(total / limite),
@@ -153,11 +167,11 @@ router.get('/:id', auth, async (req, res) => {
     const commande = await Order.findById(req.params.id)
       .populate('utilisateur', 'nom prenom email telephone')
       .populate('produits.produit', 'nom images prix');
-    
+
     if (!commande) {
       return res.status(404).json({ message: 'Commande non trouvée' });
     }
-    
+
     // Vérifier que l'utilisateur a le droit de voir cette commande
     if (commande.utilisateur) {
       if (req.user.role !== 'admin' && commande.utilisateur._id.toString() !== req.user.id) {
@@ -166,7 +180,7 @@ router.get('/:id', auth, async (req, res) => {
     } else if (req.user.role !== 'admin') {
       return res.status(403).json({ message: 'Accès refusé' });
     }
-    
+
     res.json(commande);
   } catch (error) {
     res.status(500).json({ message: 'Erreur serveur', error: error.message });
@@ -177,17 +191,17 @@ router.get('/:id', auth, async (req, res) => {
 router.put('/:id/statut', auth, isAdmin, async (req, res) => {
   try {
     const { statut } = req.body;
-    
+
     const commande = await Order.findByIdAndUpdate(
       req.params.id,
       { statut },
       { new: true }
     );
-    
+
     if (!commande) {
       return res.status(404).json({ message: 'Commande non trouvée' });
     }
-    
+
     res.json({ message: 'Statut mis à jour', commande });
   } catch (error) {
     res.status(500).json({ message: 'Erreur serveur', error: error.message });

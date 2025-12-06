@@ -729,6 +729,7 @@ const OrdersManagement = () => {
   const [commandes, setCommandes] = useState([]);
   const [loading, setLoading] = useState(false);
   const [filtre, setFiltre] = useState('');
+  const [selectedOrder, setSelectedOrder] = useState(null);
 
   const loadOrders = async () => {
     setLoading(true);
@@ -758,6 +759,10 @@ const OrdersManagement = () => {
     }
   };
 
+  const closeModal = () => {
+    setSelectedOrder(null);
+  };
+
   return (
     <div>
       <h2>Gestion des Commandes</h2>
@@ -780,35 +785,129 @@ const OrdersManagement = () => {
             <thead>
               <tr>
                 <th>Date</th>
-                <th>Client</th>
+                <th>Nom Prénom</th>
+                <th>Téléphone</th>
+                <th>Adresse</th>
+                <th>Type livraison</th>
                 <th>Montant</th>
-                <th>Statut</th>
                 <th>Action</th>
               </tr>
             </thead>
             <tbody>
-              {commandes.map((c) => (
-                <tr key={c._id}>
-                  <td>{new Date(c.dateCommande).toLocaleString()}</td>
-                  <td>{c.utilisateur?.nom} {c.utilisateur?.prenom}</td>
-                  <td>{c.montantTotal} DA</td>
-                  <td>{c.statut}</td>
-                  <td>
-                    <select value={c.statut} onChange={(e) => updateStatut(c._id, e.target.value)}>
-                      <option value="en_attente">En attente</option>
-                      <option value="en_cours">En cours</option>
-                      <option value="expediee">Expédiée</option>
-                      <option value="livree">Livrée</option>
-                      <option value="annulee">Annulée</option>
-                    </select>
-                  </td>
-                </tr>
-              ))}
+              {commandes.map((c) => {
+                const nom = c.utilisateur?.nom || c.clientGuest?.nom || c.adresseLivraison?.nom || '-';
+                const prenom = c.utilisateur?.prenom || c.clientGuest?.prenom || c.adresseLivraison?.prenom || '';
+                const telephone = c.utilisateur?.telephone || c.clientGuest?.telephone || c.adresseLivraison?.telephone || '-';
+                const adresse = c.adresseLivraison
+                  ? `${c.adresseLivraison.rue || ''}, ${c.adresseLivraison.ville || ''}, ${c.adresseLivraison.codePostal || ''}`.trim().replace(/^,\s*|,\s*$/g, '')
+                  : '-';
+                const typeLivraisonLabel = c.typeLivraison === 'point_relais' ? 'Stop Desk' : c.typeLivraison === 'domicile' ? 'À domicile' : '-';
+
+                return (
+                  <tr key={c._id} style={{ cursor: 'pointer' }} onClick={() => setSelectedOrder(c)}>
+                    <td>{new Date(c.dateCommande).toLocaleString()}</td>
+                    <td>{nom} {prenom}</td>
+                    <td>{telephone}</td>
+                    <td>{adresse}</td>
+                    <td>{typeLivraisonLabel}</td>
+                    <td>{c.montantTotal} DA</td>
+                    <td onClick={(e) => e.stopPropagation()}>
+                      <select value={c.statut} onChange={(e) => updateStatut(c._id, e.target.value)}>
+                        <option value="en_attente">En attente</option>
+                        <option value="en_cours">En cours</option>
+                        <option value="expediee">Expédiée</option>
+                        <option value="livree">Livrée</option>
+                        <option value="annulee">Annulée</option>
+                      </select>
+                    </td>
+                  </tr>
+                );
+              })}
               {commandes.length === 0 && (
-                <tr><td colSpan="5">Aucune commande.</td></tr>
+                <tr><td colSpan="8">Aucune commande.</td></tr>
               )}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {/* Modal détail commande */}
+      {selectedOrder && (
+        <div className="modal-overlay" onClick={closeModal}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>Détails de la commande #{selectedOrder._id.slice(-8).toUpperCase()}</h2>
+              <button className="modal-close" onClick={closeModal}>×</button>
+            </div>
+
+            <div className="modal-body">
+              <div className="modal-section">
+                <h3>Client</h3>
+                <p><strong>Nom:</strong> {selectedOrder.utilisateur?.nom || selectedOrder.clientGuest?.nom || selectedOrder.adresseLivraison?.nom || '-'}</p>
+                <p><strong>Prénom:</strong> {selectedOrder.utilisateur?.prenom || selectedOrder.clientGuest?.prenom || selectedOrder.adresseLivraison?.prenom || '-'}</p>
+                <p><strong>Téléphone:</strong> {selectedOrder.utilisateur?.telephone || selectedOrder.clientGuest?.telephone || selectedOrder.adresseLivraison?.telephone || '-'}</p>
+              </div>
+
+              <div className="modal-section">
+                <h3>Adresse de livraison</h3>
+                <p><strong>Rue:</strong> {selectedOrder.adresseLivraison?.rue || '-'}</p>
+                <p><strong>Wilaya:</strong> {selectedOrder.adresseLivraison?.wilaya || '-'}</p>
+                <p><strong>Type de livraison:</strong> {selectedOrder.typeLivraison === 'point_relais' ? 'Stop Desk' : 'À domicile'}</p>
+              </div>
+
+              <div className="modal-section">
+                <h3>Produits</h3>
+                <table className="modal-table">
+                  <thead>
+                    <tr>
+                      <th>Produit</th>
+                      <th>Quantité</th>
+                      <th>Prix unitaire</th>
+                      <th>Total</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {(selectedOrder.produits || []).map((item, idx) => (
+                      <tr key={idx}>
+                        <td>{item.produit?.nom || item.produit || 'Produit inconnu'}</td>
+                        <td>{item.quantite}</td>
+                        <td>{item.prix} DA</td>
+                        <td>{item.prix * item.quantite} DA</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              <div className="modal-section">
+                <h3>Résumé financier</h3>
+                <p><strong>Prix de la commande:</strong> {(selectedOrder.montantHT || (selectedOrder.montantTotal - (selectedOrder.fraisLivraison || 0))).toFixed(2)} DA</p>
+                <p><strong>Frais de livraison:</strong> {selectedOrder.fraisLivraison || 0} DA</p>
+                <p style={{ fontSize: '16px', fontWeight: 'bold', marginTop: '10px' }}>
+                  <strong>Total:</strong> {selectedOrder.montantTotal} DA
+                </p>
+              </div>
+
+              <div className="modal-section">
+                <h3>Statut</h3>
+                <select value={selectedOrder.statut} onChange={(e) => {
+                  updateStatut(selectedOrder._id, e.target.value);
+                  setSelectedOrder({ ...selectedOrder, statut: e.target.value });
+                }}>
+                  <option value="en_attente">En attente</option>
+                  <option value="en_cours">En cours</option>
+                  <option value="expediee">Expédiée</option>
+                  <option value="livree">Livrée</option>
+                  <option value="annulee">Annulée</option>
+                </select>
+                <p><strong>Date commande:</strong> {new Date(selectedOrder.dateCommande).toLocaleString()}</p>
+              </div>
+            </div>
+
+            <div className="modal-footer">
+              <button className="btn btn-primary" onClick={closeModal}>Fermer</button>
+            </div>
+          </div>
         </div>
       )}
     </div>
