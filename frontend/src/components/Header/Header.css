@@ -338,20 +338,65 @@
   color: #007bff;
 }
 
+.search-icon-mobile {
+  display: none;
+  font-size: 1.3rem;
+  color: #333;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  transition: color 0.3s;
+}
+
+.search-icon-mobile:hover {
+  color: #007bff;
+}
+
+.search-form-mobile {
+  width: 100%;
+  margin-top: 1rem;
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @media (max-width: 768px) {
   .header-content {
-    flex-wrap: wrap;
     gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .logo {
+    order: 1;
+    width: 100%;
+    text-align: center;
   }
 
   .logo h1 {
     font-size: 1.5rem;
   }
 
-  .search-form {
-    order: 3;
-    width: 100%;
-    max-width: 100%;
+  .header-actions {
+    order: 2;
+    margin-left: auto;
+  }
+
+  .search-icon-mobile {
+    display: block;
+  }
+
+  .search-form-desktop {
+    display: none;
   }
 
   .menu-toggle {

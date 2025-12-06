@@ -12,6 +12,7 @@ const Header = () => {
   const [showMenu, setShowMenu] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [notificationStatus, setNotificationStatus] = useState('default');
   const [notifOpen, setNotifOpen] = useState(false);
   const [notifItems, setNotifItems] = useState([]);
@@ -141,7 +142,7 @@ const Header = () => {
               <h1>Ma Boutique</h1>
             </Link>
 
-            <form className="search-form" onSubmit={handleSearch}>
+            <form className="search-form search-form-desktop" onSubmit={handleSearch}>
               <input
                 type="text"
                 placeholder="Rechercher un produit..."
@@ -154,6 +155,13 @@ const Header = () => {
             </form>
 
             <div className="header-actions">
+              <button 
+                className="search-icon-mobile" 
+                onClick={() => setMobileSearchOpen(!mobileSearchOpen)}
+                aria-label="Rechercher"
+              >
+                <FaSearch />
+              </button>
               <Link to="/panier" className="cart-icon">
                 <FaShoppingCart />
                 {getCartCount() > 0 && (
@@ -253,6 +261,21 @@ const Header = () => {
               </button>
             </div>
           </div>
+          
+          {mobileSearchOpen && (
+            <form className="search-form search-form-mobile" onSubmit={handleSearch}>
+              <input
+                type="text"
+                placeholder="Rechercher un produit..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                autoFocus
+              />
+              <button type="submit">
+                <FaSearch />
+              </button>
+            </form>
+          )}
         </div>
       </div>
 

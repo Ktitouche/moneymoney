@@ -68,14 +68,36 @@ const OrderConfirmation = () => {
 
               {order.produits?.length > 0 && (
                 <div className="order-items">
-                  <h3>Produits</h3>
-                  {order.produits.map((item, idx) => (
-                    <div className="item-line" key={idx}>
-                      <div className="item-name">{item.produit?.nom || 'Produit'}</div>
-                      <div className="item-qty">x{item.quantite}</div>
-                      <div className="item-price">{item.prix?.toFixed(2)} DA</div>
+                  <h3>Détails de la commande</h3>
+                  {order.produits.map((item, idx) => {
+                    const prixLigne = (item.quantite * item.prix).toFixed(2);
+                    return (
+                      <div className="item-line" key={idx}>
+                        <div className="item-details">
+                          <div className="item-name">{item.produit?.nom || 'Produit'}</div>
+                          <div className="item-breakdown">
+                            <span>{item.prix?.toFixed(2)} DA × {item.quantite} = {prixLigne} DA</span>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                  <div className="order-summary-breakdown">
+                    <div className="summary-line">
+                      <span>Sous-total:</span>
+                      <span>{(order.montantTotal - (order.fraisLivraison || 0)).toFixed(2)} DA</span>
                     </div>
-                  ))}
+                    {order.fraisLivraison > 0 && (
+                      <div className="summary-line">
+                        <span>Frais de livraison:</span>
+                        <span>{order.fraisLivraison.toFixed(2)} DA</span>
+                      </div>
+                    )}
+                    <div className="summary-line total">
+                      <span>Total:</span>
+                      <strong>{order.montantTotal.toFixed(2)} DA</strong>
+                    </div>
+                  </div>
                 </div>
               )}
 

@@ -51,7 +51,7 @@ const Cart = () => {
               return (
                 <div key={item._id} className="cart-item">
                   <div className="item-product">
-                    <img 
+                    <img
                       src={item.images?.[0] ? `${API_URL}/${item.images[0]}` : 'https://via.placeholder.com/100x100?text=Produit'}
                       alt={item.nom}
                       onError={(e) => {
@@ -69,14 +69,14 @@ const Cart = () => {
                   </div>
 
                   <div className="item-quantity">
-                    <button 
+                    <button
                       onClick={() => updateQuantity(item._id, item.quantity - 1)}
                       disabled={item.quantity <= 1}
                     >
                       <FaMinus />
                     </button>
                     <span>{item.quantity}</span>
-                    <button 
+                    <button
                       onClick={() => updateQuantity(item._id, item.quantity + 1)}
                       disabled={item.quantity >= item.stock}
                     >
@@ -88,7 +88,7 @@ const Cart = () => {
                     {itemTotal.toFixed(2)} DA
                   </div>
 
-                  <button 
+                  <button
                     className="item-remove"
                     onClick={() => removeFromCart(item._id)}
                   >
@@ -110,10 +110,6 @@ const Cart = () => {
 
           <div className="cart-summary">
             <h2>Résumé de la commande</h2>
-            
-
-
-
             <div className="summary-row total">
               <span>Total : </span>
               <span>{(getCartTotal() + (getCartTotal() >= 50 ? 0 : 5)).toFixed(2)} DA</span>

@@ -130,6 +130,30 @@
   padding: 1.5rem;
   background-color: #f8f9fa;
   border-top: 1px solid #e0e0e0;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.order-summary {
+  flex: 1;
+  min-width: 200px;
+}
+
+.summary-line {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+  font-size: 0.95rem;
+  color: #555;
+}
+
+.summary-line.total {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #333;
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid #e0e0e0;
 }
 
 .order-total {

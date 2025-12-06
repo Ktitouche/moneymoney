@@ -98,7 +98,7 @@ const MyOrders = () => {
                           <span className="order-item-qty">Quantité: {quantite}</span>
                         </div>
                         <span className="order-item-price">
-                          {prixTotal} €
+                          {prixTotal} DA
                         </span>
                       </div>
                     );
@@ -106,9 +106,21 @@ const MyOrders = () => {
                 </div>
 
                 <div className="order-footer">
-                  <div className="order-total">
-                    <span>Total:</span>
-                    <strong>{(order.montantTotal || 0).toFixed(2)} DA</strong>
+                  <div className="order-summary">
+                    <div className="summary-line">
+                      <span>Sous-total:</span>
+                      <span>{((order.montantTotal || 0) - (order.fraisLivraison || 0)).toFixed(2)} DA</span>
+                    </div>
+                    {order.fraisLivraison > 0 && (
+                      <div className="summary-line">
+                        <span>Livraison:</span>
+                        <span>{(order.fraisLivraison || 0).toFixed(2)} DA</span>
+                      </div>
+                    )}
+                    <div className="summary-line total">
+                      <span>Total:</span>
+                      <strong>{(order.montantTotal || 0).toFixed(2)} DA</strong>
+                    </div>
                   </div>
                   <button
                     onClick={() => navigate(`/commande-confirmee/${order._id}`)}
