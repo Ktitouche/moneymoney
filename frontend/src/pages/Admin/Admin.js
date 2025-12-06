@@ -3,6 +3,7 @@ import { useNavigate, Routes, Route, Link } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
 import api from '../../utils/api';
 import { toast } from 'react-toastify';
+import { MdDelete, MdEdit } from 'react-icons/md';
 import './Admin.css';
 
 const Admin = () => {
@@ -434,6 +435,22 @@ const ProductsManagement = () => {
     }
   };
 
+  const handleDeleteProduct = async (productId) => {
+    if (window.confirm('Êtes-vous sûr de vouloir supprimer ce produit ?')) {
+      try {
+        setLoading(true);
+        await api.delete(`/products/${productId}`);
+        setProduits((prev) => prev.filter((p) => p._id !== productId));
+        toast.success('Produit supprimé avec succès');
+      } catch (err) {
+        toast.error(err?.response?.data?.message || 'Erreur lors de la suppression');
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
+
   return (
     <div>
       <h2>Gestion des Produits</h2>
@@ -524,7 +541,28 @@ const ProductsManagement = () => {
                       <td>{p.prixPromo || p.prix} DA</td>
                       <td>{p.stock}</td>
                       <td>
-                        <button type="button" onClick={() => openEdit(p)}>Modifier</button>
+                        <button type="button" onClick={() => openEdit(p)} style={{ marginRight: '10px' }}>Modifier</button>
+                        <button 
+                          type="button" 
+                          onClick={() => handleDeleteProduct(p._id)} 
+                          style={{ 
+                            background: 'none', 
+                            border: 'none', 
+                            color: '#dc3545', 
+                            fontSize: '1.3rem',
+                            cursor: 'pointer',
+                            padding: '0',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            transition: 'all 0.2s ease'
+                          }}
+                          title="Supprimer"
+                          onMouseEnter={(e) => e.target.style.transform = 'scale(1.2)'}
+                          onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
+                        >
+                          <MdDelete />
+                        </button>
                       </td>
                     </tr>
                   ))}
