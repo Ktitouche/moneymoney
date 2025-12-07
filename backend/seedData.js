@@ -241,7 +241,7 @@ const products = [
 async function seedDatabase() {
   try {
     // Connexion à MongoDB
-    await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/ecommerce');
+    await mongoose.connect('mongodb://localhost:27017/ecommerce');
     console.log('✅ Connecté à MongoDB');
 
     // Supprimer les données existantes
