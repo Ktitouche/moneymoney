@@ -11,13 +11,12 @@ const Footer = () => {
           <div className="footer-section">
             <h3>À Propos</h3>
             <p>
-              Votre boutique en ligne de confiance pour tous vos besoins. 
+              Votre boutique en ligne de confiance pour tous vos besoins.
               Des produits de qualité, livrés rapidement.
             </p>
             <div className="social-links">
-              <a href="#"><FaFacebook /></a>
-              <a href="#"><FaTwitter /></a>
-              <a href="#"><FaInstagram /></a>
+              <a href="https://www.facebook.com/profile.php?id=61580923483075"><FaFacebook /></a>
+              <a href="https://www.instagram.com/koulchi_w_walou"><FaInstagram /></a>
             </div>
           </div>
 
@@ -48,22 +47,18 @@ const Footer = () => {
             <ul className="contact-info">
               <li>
                 <FaMapMarkerAlt />
-                <span>123 Rue du Commerce, Paris, France</span>
+                <span>Bordj El Bahri, Alger, Algérie</span>
               </li>
               <li>
                 <FaPhone />
-                <span>+33 1 23 45 67 89</span>
-              </li>
-              <li>
-                <FaEnvelope />
-                <span>contact@maboutique.fr</span>
+                <span>0557937423</span>
               </li>
             </ul>
           </div>
         </div>
 
         <div className="footer-bottom">
-          <p>&copy; 2025 Ma Boutique. Tous droits réservés.</p>
+          <p>&copy; 2025 koulchi W Walou. Tous droits réservés.</p>
         </div>
       </div>
     </footer>

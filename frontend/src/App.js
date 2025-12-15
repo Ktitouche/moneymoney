@@ -1,5 +1,5 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -23,11 +23,32 @@ import MyOrders from './pages/MyOrders/MyOrders';
 import Profile from './pages/Profile/Profile';
 import Admin from './pages/Admin/Admin';
 
+// Scroll to top on route change (works well on mobile)
+function ScrollToTop() {
+  const location = useLocation();
+  useEffect(() => {
+    const scrollNow = () => {
+      try {
+        window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+      } catch (_) {
+        window.scrollTo(0, 0);
+      }
+      if (document.documentElement) document.documentElement.scrollTop = 0;
+      if (document.body) document.body.scrollTop = 0;
+    };
+    scrollNow();
+    const t = setTimeout(scrollNow, 0);
+    return () => clearTimeout(t);
+  }, [location.pathname, location.search]);
+  return null;
+}
+
 function App() {
   return (
     <AuthProvider>
       <CartProvider>
         <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+          <ScrollToTop />
           <div className="App">
             <Header />
             <main>

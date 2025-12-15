@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import api from '../../utils/api';
 import ProductCard from '../../components/ProductCard/ProductCard';
 import './Home.css';
@@ -44,9 +44,9 @@ const Home = () => {
           <div className="hero-content">
             <h1>Bienvenue dans votre boutique</h1>
             <p>Découvrez nos produits de qualité à prix imbattables</p>
-            <a href="/produits" className="btn btn-primary btn-large">
+            <Link to="/produits" className="btn btn-primary btn-large">
               Voir tous les produits
-            </a>
+            </Link>
           </div>
         </div>
       </section>
@@ -58,15 +58,19 @@ const Home = () => {
             <h2 className="section-title">Catégories</h2>
             <div className="categories-grid">
               {categories.map((category) => (
-                <a
+                <Link
                   key={category._id}
-                  href={`/produits?categorie=${category._id}`}
+                  to={`/produits?categorie=${category._id}`}
                   className="category-card"
                 >
                   <div className="category-image">
                     {category.image ? (
                       <img
-                        src={`${process.env.REACT_APP_API_URL?.replace('/api', '')}/${category.image}`}
+                        src={
+                          category.image.startsWith('http')
+                            ? category.image
+                            : `${process.env.REACT_APP_API_URL?.replace('/api', '') || 'http://localhost:5000'}/${category.image.replace(/\\/g, '/')}`
+                        }
                         alt={category.nom}
                         onError={(e) => {
                           e.target.src = 'https://via.placeholder.com/200x200?text=Categorie';
@@ -80,7 +84,7 @@ const Home = () => {
                     )}
                   </div>
                   <h3>{category.nom}</h3>
-                </a>
+                </Link>
               ))}
             </div>
           </div>
@@ -111,9 +115,9 @@ const Home = () => {
             ))}
           </div>
           <div className="text-center mt-4">
-            <a href="/produits" className="btn btn-outline">
+            <Link to="/produits" className="btn btn-outline">
               Voir plus de produits
-            </a>
+            </Link>
           </div>
         </div>
       </section>

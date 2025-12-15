@@ -17,6 +17,12 @@ const ProductDetail = () => {
   const API_URL = process.env.REACT_APP_API_URL?.replace('/api', '') || 'http://localhost:5000';
 
   useEffect(() => {
+    // Jump to top when entering a product from Home
+    try {
+      window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+    } catch (_) {
+      window.scrollTo(0, 0);
+    }
     fetchProduct();
   }, [id]);
 

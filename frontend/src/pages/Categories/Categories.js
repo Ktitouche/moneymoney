@@ -46,7 +46,11 @@ const Categories = () => {
                                 <div className="category-image">
                                     {category.image ? (
                                         <img
-                                            src={`${process.env.REACT_APP_API_URL?.replace('/api', '')}/${category.image}`}
+                                            src={
+                                                category.image.startsWith('http')
+                                                    ? category.image
+                                                    : `${process.env.REACT_APP_API_URL?.replace('/api', '') || 'http://localhost:5000'}/${category.image.replace(/\\/g, '/')}`
+                                            }
                                             alt={category.nom}
                                             onError={(e) => {
                                                 e.target.src = 'https://via.placeholder.com/300x300?text=Categorie';

@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { FaShoppingCart, FaUser, FaSearch, FaBars, FaBell } from 'react-icons/fa';
 import { AuthContext } from '../../context/AuthContext';
 import { CartContext } from '../../context/CartContext';
@@ -19,6 +19,7 @@ const Header = () => {
   const [notifLoading, setNotifLoading] = useState(false);
   const [notifError, setNotifError] = useState('');
   const [notifHasNew, setNotifHasNew] = useState(false);
+  const location = useLocation();
   const [dismissedIds, setDismissedIds] = useState(() => {
     try {
       const stored = localStorage.getItem('notifDismissed');
@@ -51,6 +52,14 @@ const Header = () => {
     }
     setNotificationStatus(Notification.permission);
   }, []);
+
+  // Fermer automatiquement les menus sur changement de route (utile mobile)
+  useEffect(() => {
+    setShowMenu(false);
+    setUserMenuOpen(false);
+    setMobileSearchOpen(false);
+    setNotifOpen(false);
+  }, [location.pathname]);
 
   useEffect(() => {
     try {
@@ -139,7 +148,7 @@ const Header = () => {
         <div className="container">
           <div className="header-content">
             <Link to="/" className="logo">
-              <h1>Ma Boutique</h1>
+              <h1>Koulchi W Walou</h1>
             </Link>
 
             <form className="search-form search-form-desktop" onSubmit={handleSearch}>
@@ -155,8 +164,8 @@ const Header = () => {
             </form>
 
             <div className="header-actions">
-              <button 
-                className="search-icon-mobile" 
+              <button
+                className="search-icon-mobile"
                 onClick={() => setMobileSearchOpen(!mobileSearchOpen)}
                 aria-label="Rechercher"
               >
@@ -261,7 +270,7 @@ const Header = () => {
               </button>
             </div>
           </div>
-          
+
           {mobileSearchOpen && (
             <form className="search-form search-form-mobile" onSubmit={handleSearch}>
               <input
@@ -281,7 +290,7 @@ const Header = () => {
 
       <nav className={`header-nav ${showMenu ? 'active' : ''}`}>
         <div className="container">
-          <ul>
+          <ul onClick={() => setShowMenu(false)}>
             <li><Link to="/">Accueil</Link></li>
             <li><Link to="/produits">Tous les Produits</Link></li>
             <li><Link to="/categories">Catégories</Link></li>
