@@ -512,6 +512,7 @@ const ProductsManagement = () => {
           <div className="form-row">
             <label>Images (max 5)</label>
             <input name="images" type="file" multiple accept="image/*" onChange={handleImages} />
+            <small>Formats conseillés : JPG/PNG/WebP • 1200x1200px minimum • Taille max 2 Mo par image</small>
           </div>
           <button type="submit" disabled={loading}>Ajouter le produit</button>
         </form>
@@ -530,7 +531,7 @@ const ProductsManagement = () => {
                     <th>Catégorie</th>
                     <th>Prix</th>
                     <th>Stock</th>
-                    <th>Actions</th>
+                    <th style={{ width: '120px' }}>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -541,28 +542,26 @@ const ProductsManagement = () => {
                       <td>{p.prixPromo || p.prix} DA</td>
                       <td>{p.stock}</td>
                       <td>
-                        <button type="button" onClick={() => openEdit(p)} style={{ marginRight: '10px' }}>Modifier</button>
-                        <button 
-                          type="button" 
-                          onClick={() => handleDeleteProduct(p._id)} 
-                          style={{ 
-                            background: 'none', 
-                            border: 'none', 
-                            color: '#dc3545', 
-                            fontSize: '1.3rem',
-                            cursor: 'pointer',
-                            padding: '0',
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            transition: 'all 0.2s ease'
-                          }}
-                          title="Supprimer"
-                          onMouseEnter={(e) => e.target.style.transform = 'scale(1.2)'}
-                          onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
-                        >
-                          <MdDelete />
-                        </button>
+                        <div className="table-actions">
+                          <button
+                            type="button"
+                            className="icon-btn"
+                            onClick={() => openEdit(p)}
+                            title="Modifier"
+                            aria-label={`Modifier ${p.nom}`}
+                          >
+                            ✎
+                          </button>
+                          <button
+                            type="button"
+                            className="icon-btn danger"
+                            onClick={() => handleDeleteProduct(p._id)}
+                            title="Supprimer"
+                            aria-label={`Supprimer ${p.nom}`}
+                          >
+                            🗑
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -630,7 +629,7 @@ const ProductsManagement = () => {
               <div className="form-row">
                 <label>Nouvelle image (optionnel)</label>
                 <input name="images" type="file" multiple accept="image/*" onChange={handleEditImages} />
-                <small>Si vous ajoutez des images, elles remplaceront les actuelles.</small>
+                <small>Formats conseillés : JPG/PNG/WebP • 1200x1200px min • Remplace les images actuelles (max ~2 Mo chacune)</small>
               </div>
               <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginTop: '10px' }}>
                 <button type="submit" disabled={loading}>Enregistrer</button>
@@ -648,6 +647,9 @@ const CategoriesManagement = () => {
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({ nom: '', description: '' });
   const [image, setImage] = useState(null);
+  const [editingId, setEditingId] = useState(null);
+  const [editForm, setEditForm] = useState({ nom: '', description: '' });
+  const [editImage, setEditImage] = useState(null);
 
   const loadCategories = async () => {
     setLoading(true);
@@ -700,6 +702,66 @@ const CategoriesManagement = () => {
     }
   };
 
+  const startEdit = (category) => {
+    setEditingId(category._id);
+    setEditForm({ nom: category.nom || '', description: category.description || '' });
+    setEditImage(null);
+  };
+
+  const handleEditChange = (e) => {
+    const { name, value } = e.target;
+    setEditForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const submitEdit = async (e) => {
+    e.preventDefault();
+    if (!editingId) return;
+    setLoading(true);
+    try {
+      const fd = new FormData();
+      fd.append('nom', editForm.nom);
+      fd.append('description', editForm.description);
+      if (editImage) fd.append('image', editImage);
+
+      const res = await api.put(`/categories/${editingId}`, fd);
+      const updated = res.data?.category;
+      if (updated) {
+        setCategories((prev) => prev.map((c) => (c._id === updated._id ? updated : c)));
+        toast.success('Catégorie mise à jour');
+      } else {
+        await loadCategories();
+      }
+      setEditingId(null);
+      setEditForm({ nom: '', description: '' });
+      setEditImage(null);
+    } catch (err) {
+      toast.error(err?.response?.data?.message || 'Erreur lors de la mise à jour');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    setEditForm({ nom: '', description: '' });
+    setEditImage(null);
+  };
+
+  const deleteCategory = async (id) => {
+    const confirmed = window.confirm('Supprimer cette catégorie ?');
+    if (!confirmed) return;
+    setLoading(true);
+    try {
+      await api.delete(`/categories/${id}`);
+      setCategories((prev) => prev.filter((c) => c._id !== id));
+      toast.success('Catégorie supprimée');
+    } catch (err) {
+      toast.error(err?.response?.data?.message || 'Impossible de supprimer cette catégorie');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div>
       <h2>Gestion des Catégories</h2>
@@ -712,6 +774,7 @@ const CategoriesManagement = () => {
           <div className="form-row">
             <label>Image</label>
             <input type="file" accept="image/*" onChange={(e) => setImage(e.target.files[0])} />
+            <small>Formats conseillés : JPG/PNG/WebP, 1200x1200px min</small>
           </div>
         </div>
         <div className="form-row">
@@ -734,6 +797,7 @@ const CategoriesManagement = () => {
                 <th>Nom</th>
                 <th>Description</th>
                 <th>Image</th>
+                <th style={{ width: '120px' }}>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -750,13 +814,62 @@ const CategoriesManagement = () => {
                       />
                     ) : '—'}
                   </td>
+                  <td>
+                    <div className="table-actions">
+                      <button
+                        type="button"
+                        className="icon-btn"
+                        onClick={() => startEdit(c)}
+                        title="Modifier"
+                        aria-label={`Modifier ${c.nom}`}
+                      >
+                        ✎
+                      </button>
+                      <button
+                        type="button"
+                        className="icon-btn danger"
+                        onClick={() => deleteCategory(c._id)}
+                        title="Supprimer"
+                        aria-label={`Supprimer ${c.nom}`}
+                      >
+                        🗑
+                      </button>
+                    </div>
+                  </td>
                 </tr>
               ))}
               {categories.length === 0 && (
-                <tr><td colSpan="3">Aucune catégorie.</td></tr>
+                <tr><td colSpan="4">Aucune catégorie.</td></tr>
               )}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {editingId && (
+        <div className="modal-backdrop">
+          <div className="modal-card">
+            <h3>Modifier la catégorie</h3>
+            <form onSubmit={submitEdit}>
+              <div className="form-row">
+                <label>Nom</label>
+                <input name="nom" value={editForm.nom} onChange={handleEditChange} required />
+              </div>
+              <div className="form-row">
+                <label>Description</label>
+                <textarea name="description" value={editForm.description} onChange={handleEditChange} />
+              </div>
+              <div className="form-row">
+                <label>Nouvelle image (optionnel)</label>
+                <input type="file" accept="image/*" onChange={(e) => setEditImage(e.target.files[0])} />
+                <small>Formats conseillés : JPG/PNG/WebP, 1200x1200px min</small>
+              </div>
+              <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginTop: '10px' }}>
+                <button type="submit" disabled={loading}>Enregistrer</button>
+                <button type="button" onClick={cancelEdit}>Annuler</button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
     </div>

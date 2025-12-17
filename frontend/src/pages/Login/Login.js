@@ -18,7 +18,32 @@ const Login = () => {
   const navigate = useNavigate();
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+
+    if (name === 'telephone') {
+      const digitsOnly = value.replace(/\D/g, '').slice(0, 10);
+
+      setFormData((prev) => {
+        if (!digitsOnly) {
+          return { ...prev, telephone: '' };
+        }
+
+        if (digitsOnly.length === 1) {
+          return digitsOnly === '0' ? { ...prev, telephone: digitsOnly } : prev;
+        }
+
+        const prefix = digitsOnly.slice(0, 2);
+        const isValidPrefix = ['05', '06', '07'].includes(prefix);
+        if (!isValidPrefix) {
+          return prev;
+        }
+
+        return { ...prev, telephone: digitsOnly };
+      });
+      return;
+    }
+
+    setFormData({ ...formData, [name]: value });
   };
 
   const handleSubmit = async (e) => {
@@ -106,7 +131,13 @@ const Login = () => {
                     className="form-input"
                     value={formData.telephone}
                     onChange={handleChange}
+                    inputMode="numeric"
+                    pattern="0[5-7][0-9]{8}"
+                    maxLength={10}
+                    minLength={10}
+                    placeholder="05XXXXXXXX"
                   />
+                  <small className="form-hint">Numéro algérien : commence par 05 / 06 / 07, 10 chiffres</small>
                 </div>
               </>
             )}

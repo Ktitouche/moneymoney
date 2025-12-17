@@ -17,6 +17,7 @@ import Products from './pages/Products/Products';
 import ProductDetail from './pages/ProductDetail/ProductDetail';
 import Cart from './pages/Cart/Cart';
 import Login from './pages/Login/Login';
+import Contact from './pages/Contact/Contact';
 import Checkout from './pages/Checkout/Checkout';
 import OrderConfirmation from './pages/OrderConfirmation/OrderConfirmation';
 import MyOrders from './pages/MyOrders/MyOrders';
@@ -61,6 +62,7 @@ function App() {
                 <Route path="/produit/:id" element={<ProductDetail />} />
                 <Route path="/panier" element={<Cart />} />
                 <Route path="/connexion" element={<Login />} />
+                <Route path="/contact" element={<Contact />} />
                 <Route path="/commander" element={<Checkout />} />
                 <Route path="/commande-confirmee/:id" element={<OrderConfirmation />} />
                 <Route path="/mes-commandes" element={<MyOrders />} />

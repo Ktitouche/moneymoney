@@ -14,6 +14,7 @@ const ProductDetail = () => {
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState(0);
+  const [showLightbox, setShowLightbox] = useState(false);
   const API_URL = process.env.REACT_APP_API_URL?.replace('/api', '') || 'http://localhost:5000';
 
   useEffect(() => {
@@ -56,6 +57,26 @@ const ProductDetail = () => {
     }
   };
 
+  const nextImage = () => {
+    if (product.images && product.images.length > 0) {
+      setSelectedImage((prev) => (prev + 1) % product.images.length);
+    }
+  };
+
+  const prevImage = () => {
+    if (product.images && product.images.length > 0) {
+      setSelectedImage((prev) => (prev - 1 + product.images.length) % product.images.length);
+    }
+  };
+
+  const openLightbox = () => {
+    setShowLightbox(true);
+  };
+
+  const closeLightbox = () => {
+    setShowLightbox(false);
+  };
+
   if (loading) {
     return <div className="loading">Chargement...</div>;
   }
@@ -83,6 +104,8 @@ const ProductDetail = () => {
                 <img
                   src={`${API_URL}/${product.images[selectedImage]}`}
                   alt={product.nom}
+                  onClick={openLightbox}
+                  style={{ cursor: 'pointer' }}
                   onError={(e) => {
                     e.target.src = 'https://via.placeholder.com/600x600?text=Produit';
                   }}
@@ -92,6 +115,16 @@ const ProductDetail = () => {
                   src="https://via.placeholder.com/600x600?text=Produit"
                   alt={product.nom}
                 />
+              )}
+              {product.images && product.images.length > 1 && (
+                <>
+                  <button className="image-nav prev" onClick={prevImage}>
+                    ‹
+                  </button>
+                  <button className="image-nav next" onClick={nextImage}>
+                    ›
+                  </button>
+                </>
               )}
             </div>
 
@@ -185,6 +218,32 @@ const ProductDetail = () => {
           </div>
         </div>
       </div>
+
+      {/* Lightbox Modal */}
+      {showLightbox && product.images && product.images.length > 0 && (
+        <div className="lightbox-overlay" onClick={closeLightbox}>
+          <button className="lightbox-close" onClick={closeLightbox}>×</button>
+          <div className="lightbox-content" onClick={(e) => e.stopPropagation()}>
+            <img
+              src={`${API_URL}/${product.images[selectedImage]}`}
+              alt={product.nom}
+              onError={(e) => {
+                e.target.src = 'https://via.placeholder.com/800x800?text=Produit';
+              }}
+            />
+            {product.images.length > 1 && (
+              <>
+                <button className="lightbox-nav prev" onClick={prevImage}>
+                  ‹
+                </button>
+                <button className="lightbox-nav next" onClick={nextImage}>
+                  ›
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
