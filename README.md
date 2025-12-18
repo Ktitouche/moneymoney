@@ -238,16 +238,89 @@ Modifiez le nom dans `frontend/src/components/Header/Header.js`:
 
 ## 🚀 Déploiement
 
-### Backend (exemple avec Heroku)
-1. Créez une application Heroku
-2. Ajoutez MongoDB Atlas comme base de données
-3. Configurez les variables d'environnement
-4. Déployez avec Git
+### VPS (Ubuntu + Nginx + PM2)
 
-### Frontend (exemple avec Vercel/Netlify)
-1. Buildez l'application: `npm run build`
-2. Déployez le dossier `build/`
-3. Configurez la variable `REACT_APP_API_URL` avec l'URL du backend
+Ce scénario héberge le frontend (React build) via Nginx et le backend (Node/Express) via PM2.
+
+1) Préparer le serveur (en SSH sur la VPS):
+
+```bash
+# Installer Node LTS et PM2
+curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
+sudo apt-get install -y nodejs
+sudo npm i -g pm2
+
+# Installer Nginx
+sudo apt-get install -y nginx
+
+# Répertoire d'hébergement (exemple)
+sudo mkdir -p /var/www/moneymoney
+sudo chown -R $USER:$USER /var/www/moneymoney
+```
+
+2) Déployer le code sur la VPS (git clone ou rsync):
+
+```bash
+cd /var/www/moneymoney
+git clone <votre-repo.git> .
+```
+
+3) Configurer le backend:
+
+```bash
+cd backend
+cp .env.example .env
+# Éditer .env avec vos valeurs (MongoDB, JWT_SECRET, PORT=5000)
+npm install
+mkdir -p uploads
+```
+
+4) Construire le frontend (en pointant vers votre domaine):
+
+```bash
+cd ../frontend
+# Mettre votre domaine dans .env.production
+# REACT_APP_API_URL=https://votre-domaine.com/api
+npm install
+npm run build
+```
+
+5) PM2 pour démarrer l'API:
+
+```bash
+cd ..
+pm2 start ecosystem.config.js --env production
+pm2 save
+pm2 startup  # puis exécuter la commande affichée pour activer au boot
+```
+
+6) Nginx pour servir le frontend et proxy l'API:
+
+```bash
+sudo cp deployment/nginx.conf.example /etc/nginx/sites-available/moneymoney
+sudo sed -i 's/your-domain.com/votre-domaine.com/g' /etc/nginx/sites-available/moneymoney
+sudo ln -s /etc/nginx/sites-available/moneymoney /etc/nginx/sites-enabled/moneymoney
+sudo nginx -t && sudo systemctl reload nginx
+```
+
+Structure de fichiers sur la VPS:
+
+```
+/var/www/moneymoney/
+  backend/            # API Node (PM2)
+    .env
+    uploads/          # images uploadées (persistant)
+  frontend/
+    build/            # fichiers statiques servis par Nginx
+  ecosystem.config.js
+  deployment/nginx.conf.example
+```
+
+Notes importantes VPS:
+- Mettez à jour `frontend/.env.production` avec l’URL publique du backend (même domaine recommandé) avant `npm run build`.
+- Assurez-vous que `backend/uploads/` existe et est accessible en écriture.
+- Les routes `/api/*` et `/uploads/*` sont proxifiées vers le backend sur `127.0.0.1:5000`.
+- Logs PM2: `pm2 logs`, redémarrage: `pm2 restart moneymoney-api`.
 
 ## 📄 Licence
 

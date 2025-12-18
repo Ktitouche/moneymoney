@@ -119,10 +119,10 @@ const ProductDetail = () => {
               {product.images && product.images.length > 1 && (
                 <>
                   <button className="image-nav prev" onClick={prevImage}>
-                    ‹
+                    <span>‹</span>
                   </button>
                   <button className="image-nav next" onClick={nextImage}>
-                    ›
+                    <span>›</span>
                   </button>
                 </>
               )}
@@ -234,10 +234,10 @@ const ProductDetail = () => {
             {product.images.length > 1 && (
               <>
                 <button className="lightbox-nav prev" onClick={prevImage}>
-                  ‹
+                  <span>‹</span>
                 </button>
                 <button className="lightbox-nav next" onClick={nextImage}>
-                  ›
+                  <span>›</span>
                 </button>
               </>
             )}
