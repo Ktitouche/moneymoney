@@ -37,6 +37,10 @@ const userSchema = new mongoose.Schema({
     enum: ['client', 'admin'],
     default: 'client'
   },
+  tokenVersion: {
+    type: Number,
+    default: 0
+  },
   dateCreation: {
     type: Date,
     default: Date.now

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useEffect, useState, useContext, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
 import api from '../../utils/api';
@@ -19,15 +19,7 @@ const Profile = () => {
     pays: ''
   });
 
-  useEffect(() => {
-    if (!user) {
-      navigate('/connexion');
-      return;
-    }
-    fetchProfile();
-  }, [user]);
-
-  const fetchProfile = async () => {
+  const fetchProfile = useCallback(async () => {
     try {
       const response = await api.get('/users/profil');
       const userData = response.data;
@@ -43,7 +35,15 @@ const Profile = () => {
     } catch (error) {
       // Erreur silencieuse
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    if (!user) {
+      navigate('/connexion');
+      return;
+    }
+    fetchProfile();
+  }, [user, navigate, fetchProfile]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });

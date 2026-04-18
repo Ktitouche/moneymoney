@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FaShoppingCart, FaMinus, FaPlus } from 'react-icons/fa';
 import api from '../../utils/api';
 import { CartContext } from '../../context/CartContext';
+import { trackMetaEvent } from '../../utils/metaPixel';
 import { toast } from 'react-toastify';
 import './ProductDetail.css';
 
@@ -17,6 +18,18 @@ const ProductDetail = () => {
   const [showLightbox, setShowLightbox] = useState(false);
   const API_URL = process.env.REACT_APP_API_URL?.replace('/api', '') || 'http://localhost:5000';
 
+  const fetchProduct = useCallback(async () => {
+    try {
+      const response = await api.get(`/products/${id}`);
+      setProduct(response.data);
+      setLoading(false);
+    } catch (error) {
+      setLoading(false);
+      toast.error('Produit non trouvé');
+      navigate('/produits');
+    }
+  }, [id, navigate]);
+
   useEffect(() => {
     // Jump to top when entering a product from Home
     try {
@@ -25,23 +38,18 @@ const ProductDetail = () => {
       window.scrollTo(0, 0);
     }
     fetchProduct();
-  }, [id]);
-
-  const fetchProduct = async () => {
-    try {
-      const response = await api.get(`/products/${id}`);
-      setProduct(response.data);
-      setLoading(false);
-    } catch (error) {
-      // Erreur silencieuse
-      setLoading(false);
-      toast.error('Produit non trouvé');
-      navigate('/produits');
-    }
-  };
+  }, [fetchProduct]);
 
   const handleAddToCart = () => {
     addToCart(product, quantity);
+    const price = product.prixPromo || product.prix;
+    trackMetaEvent('AddToCart', {
+      content_ids: [String(product._id)],
+      contents: [{ id: String(product._id), quantity, item_price: Number(price) }],
+      content_type: 'product',
+      value: Number(price) * quantity,
+      currency: process.env.REACT_APP_META_CURRENCY || 'DZD'
+    });
     toast.success(`${quantity} ${quantity > 1 ? 'produits ajoutés' : 'produit ajouté'} au panier !`);
   };
 
@@ -77,6 +85,10 @@ const ProductDetail = () => {
     setShowLightbox(false);
   };
 
+  const buildImageUrl = (image) => (
+    image && image.startsWith('http') ? image : `${API_URL}/${image}`
+  );
+
   if (loading) {
     return <div className="loading">Chargement...</div>;
   }
@@ -102,7 +114,7 @@ const ProductDetail = () => {
               )}
               {product.images && product.images.length > 0 ? (
                 <img
-                  src={`${API_URL}/${product.images[selectedImage]}`}
+                  src={buildImageUrl(product.images[selectedImage])}
                   alt={product.nom}
                   onClick={openLightbox}
                   style={{ cursor: 'pointer' }}
@@ -133,7 +145,7 @@ const ProductDetail = () => {
                 {product.images.map((image, index) => (
                   <img
                     key={index}
-                    src={`${API_URL}/${image}`}
+                    src={buildImageUrl(image)}
                     alt={`${product.nom} ${index + 1}`}
                     className={selectedImage === index ? 'active' : ''}
                     onClick={() => setSelectedImage(index)}
@@ -225,7 +237,7 @@ const ProductDetail = () => {
           <button className="lightbox-close" onClick={closeLightbox}>×</button>
           <div className="lightbox-content" onClick={(e) => e.stopPropagation()}>
             <img
-              src={`${API_URL}/${product.images[selectedImage]}`}
+              src={buildImageUrl(product.images[selectedImage])}
               alt={product.nom}
               onError={(e) => {
                 e.target.src = 'https://via.placeholder.com/800x800?text=Produit';

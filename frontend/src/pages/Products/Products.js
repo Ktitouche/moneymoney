@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import React, { useState, useEffect, useCallback } from 'react';
 import api from '../../utils/api';
 import ProductCard from '../../components/ProductCard/ProductCard';
 import './Products.css';
@@ -23,20 +22,7 @@ const Products = () => {
     fetchCategories();
   }, []);
 
-  useEffect(() => {
-    fetchProducts();
-  }, [filters]);
-
-  const fetchCategories = async () => {
-    try {
-      const response = await api.get('/categories');
-      setCategories(response.data || []);
-    } catch (error) {
-      // Erreur silencieuse
-    }
-  };
-
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     setLoading(true);
     try {
       const params = new URLSearchParams(window.location.search);
@@ -62,6 +48,19 @@ const Products = () => {
     } catch (error) {
       // Erreur silencieuse
       setLoading(false);
+    }
+  }, [filters]);
+
+  useEffect(() => {
+    fetchProducts();
+  }, [fetchProducts]);
+
+  const fetchCategories = async () => {
+    try {
+      const response = await api.get('/categories');
+      setCategories(response.data || []);
+    } catch (error) {
+      // Erreur silencieuse
     }
   };
 

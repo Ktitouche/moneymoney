@@ -1,4 +1,4 @@
-.checkout-page {
+﻿.checkout-page {
   padding: 2rem 0;
   min-height: 70vh;
 }
@@ -24,7 +24,7 @@
 
 .checkout-section h2 {
   font-size: 1.5rem;
-  color: #333;
+  color: #2f1b10;
   margin-bottom: 1.5rem;
 }
 
@@ -42,7 +42,7 @@
 
 .payment-option {
   padding: 1rem;
-  border: 2px solid #e0e0e0;
+  border: 2px solid #efc9a4;
   border-radius: 8px;
   display: flex;
   align-items: center;
@@ -52,8 +52,8 @@
 }
 
 .payment-option:hover {
-  border-color: #007bff;
-  background-color: #f8f9fa;
+  border-color: #e25822;
+  background-color: #fff6ec;
 }
 
 .payment-option input[type="radio"] {
@@ -63,8 +63,8 @@
 }
 
 .payment-option:has(input[type="radio"]:checked) {
-  border-color: #007bff;
-  background-color: #f8f9fa;
+  border-color: #e25822;
+  background-color: #fff6ec;
 }
 
 .payment-option span {
@@ -86,14 +86,14 @@
 
 .order-summary h2 {
   font-size: 1.5rem;
-  color: #333;
+  color: #2f1b10;
   margin-bottom: 1.5rem;
 }
 
 .order-items {
   margin-bottom: 1.5rem;
   padding-bottom: 1.5rem;
-  border-bottom: 2px solid #e0e0e0;
+  border-bottom: 2px solid #efc9a4;
 }
 
 .order-item {
@@ -110,17 +110,17 @@
 
 .order-item-name {
   font-weight: 500;
-  color: #333;
+  color: #2f1b10;
 }
 
 .order-item-qty {
   font-size: 0.9rem;
-  color: #666;
+  color: #7a4b2b;
 }
 
 .order-item-price {
   font-weight: 600;
-  color: #007bff;
+  color: #e25822;
 }
 
 .order-totals {
@@ -131,22 +131,22 @@
   display: flex;
   justify-content: space-between;
   padding: 0.75rem 0;
-  color: #666;
+  color: #7a4b2b;
 }
 
 .order-line.total {
   margin-top: 1rem;
   padding-top: 1rem;
-  border-top: 2px solid #e0e0e0;
+  border-top: 2px solid #efc9a4;
   font-size: 1.3rem;
   font-weight: bold;
-  color: #333;
+  color: #2f1b10;
 }
 
 .field-helper {
   margin-top: 6px;
   font-size: 13px;
-  color: #666;
+  color: #7a4b2b;
 }
 
 .field-helper.success {
@@ -158,12 +158,12 @@
 }
 
 .field-helper.info {
-  color: #666;
+  color: #7a4b2b;
 }
 
 .security-note {
   text-align: center;
-  color: #666;
+  color: #7a4b2b;
   font-size: 0.95rem;
   margin-top: 1rem;
 }
@@ -191,3 +191,4 @@
     padding: 1.5rem;
   }
 }
+

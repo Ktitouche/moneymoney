@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FaCheckCircle } from 'react-icons/fa';
 import api from '../../utils/api';
+import { trackMetaEvent } from '../../utils/metaPixel';
 import './OrderConfirmation.css';
 
 const OrderConfirmation = () => {
@@ -9,12 +10,9 @@ const OrderConfirmation = () => {
   const navigate = useNavigate();
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
+  const trackedOrderRef = useRef('');
 
-  useEffect(() => {
-    fetchOrder();
-  }, [id]);
-
-  const fetchOrder = async () => {
+  const fetchOrder = useCallback(async () => {
     try {
       const response = await api.get(`/orders/${id}`);
       setOrder(response.data);
@@ -25,7 +23,34 @@ const OrderConfirmation = () => {
       setOrder(null);
       setLoading(false);
     }
-  };
+  }, [id]);
+
+  useEffect(() => {
+    fetchOrder();
+  }, [fetchOrder]);
+
+  useEffect(() => {
+    if (!order?._id || trackedOrderRef.current === order._id) return;
+
+    const products = Array.isArray(order.produits) ? order.produits : [];
+    trackMetaEvent('Purchase', {
+      value: Number(order.montantTotal) || 0,
+      currency: process.env.REACT_APP_META_CURRENCY || 'DZD',
+      content_type: 'product',
+      content_ids: products
+        .map((item) => item?.produit?._id || item?.produit)
+        .filter(Boolean)
+        .map((productId) => String(productId)),
+      contents: products.map((item) => ({
+        id: String(item?.produit?._id || item?.produit || ''),
+        quantity: Number(item?.quantite) || 1,
+        item_price: Number(item?.prix) || 0
+      })),
+      order_id: String(order._id)
+    });
+
+    trackedOrderRef.current = order._id;
+  }, [order]);
 
   if (loading) {
     return <div className="loading">Chargement...</div>;

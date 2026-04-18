@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { FaFacebook, FaTwitter, FaInstagram, FaEnvelope, FaPhone, FaMapMarkerAlt } from 'react-icons/fa';
+import { FaFacebook, FaInstagram, FaPhone, FaMapMarkerAlt } from 'react-icons/fa';
 import './Footer.css';
 
 const Footer = () => {
@@ -11,8 +11,8 @@ const Footer = () => {
           <div className="footer-section">
             <h3>À Propos</h3>
             <p>
-              Votre boutique en ligne de confiance pour tous vos besoins.
-              Des produits de qualité, livrés rapidement.
+              Votre boutique spécialiste des braseros, accessoires de feu et ambiances extérieures.
+              Des pièces robustes, pensées pour vos soirées en plein air.
             </p>
             <div className="social-links">
               <a href="https://www.facebook.com/profile.php?id=61580923483075"><FaFacebook /></a>
@@ -58,7 +58,7 @@ const Footer = () => {
         </div>
 
         <div className="footer-bottom">
-          <p>&copy; 2025 koulchi W Walou. Tous droits réservés.</p>
+          <p>&copy; 2026 Maison Brasero. Tous droits réservés.</p>
         </div>
       </div>
     </footer>

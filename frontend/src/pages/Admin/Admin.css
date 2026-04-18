@@ -1,4 +1,4 @@
-.admin-page {
+﻿.admin-page {
   padding: 2rem 0;
   min-height: 70vh;
 }
@@ -28,18 +28,18 @@
 .admin-nav-item {
   padding: 1rem;
   border-radius: 8px;
-  color: #333;
+  color: #2f1b10;
   font-weight: 500;
   transition: background-color 0.3s;
   display: block;
 }
 
 .admin-nav-item:hover {
-  background-color: #f8f9fa;
+  background-color: #fff6ec;
 }
 
 .admin-nav-item.active {
-  background-color: #007bff;
+  background-color: #e25822;
   color: white;
 }
 
@@ -52,7 +52,7 @@
 
 .admin-content h2 {
   font-size: 1.8rem;
-  color: #333;
+  color: #2f1b10;
   margin-bottom: 1.5rem;
 }
 
@@ -82,7 +82,7 @@ textarea,
 select,
 input:not([type]) {
   padding: 0.6rem 0.75rem;
-  border: 1px solid #ddd;
+  border: 1px solid #efc9a4;
   border-radius: 8px;
   font-size: 0.95rem;
 }
@@ -93,8 +93,8 @@ textarea {
 
 button[type="submit"],
 .admin-content button {
-  background-color: #007bff;
-  color: #fff;
+  background-color: #e25822;
+  color: #fffdf9;
   border: none;
   padding: 0.7rem 1.1rem;
   border-radius: 8px;
@@ -128,8 +128,8 @@ button[type="submit"],
   width: 36px;
   height: 36px;
   border-radius: 8px;
-  border: 1px solid #e2e8f0;
-  background: #f8fafc;
+  border: 1px solid #edd7c1;
+  background: #fff8ef;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -139,19 +139,19 @@ button[type="submit"],
 }
 
 .icon-btn:hover {
-  background: #e5edff;
-  border-color: #cdd9ff;
+  background: #ffe6cc;
+  border-color: #f3c8a0;
 }
 
 .icon-btn.danger {
-  background: #fff1f2;
-  border-color: #fecdd3;
-  color: #b91c1c;
+  background: #ffe1d6;
+  border-color: #f7c2b7;
+  color: #8f1e18;
 }
 
 .icon-btn.danger:hover {
-  background: #ffe4e6;
-  border-color: #fca5a5;
+  background: #ffd4c6;
+  border-color: #ef9a86;
 }
 
 .modal-backdrop {
@@ -166,7 +166,7 @@ button[type="submit"],
 }
 
 .modal-card {
-  background: #fff;
+  background: #fffdf9;
   border-radius: 12px;
   padding: 1.5rem;
   width: min(520px, 100%);
@@ -185,7 +185,7 @@ button[type="submit"],
 }
 
 .stat-card {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #ff7a1a 0%, #c23b17 100%);
   color: white;
   padding: 2rem;
   border-radius: 12px;
@@ -206,10 +206,10 @@ button[type="submit"],
 
 .admin-note {
   padding: 1.5rem;
-  background-color: #fff3cd;
-  border-left: 4px solid #ffc107;
+  background-color: #ffe6bf;
+  border-left: 4px solid #ff9f1c;
   border-radius: 8px;
-  color: #856404;
+  color: #7f4a18;
   line-height: 1.6;
 }
 
@@ -219,8 +219,8 @@ button[type="submit"],
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  background: #f8fbff;
-  border: 1px solid #e2ecf7;
+  background: #fff7ef;
+  border: 1px solid #f1d9c0;
   border-radius: 10px;
   padding: 16px 18px;
   margin-bottom: 1.5rem;
@@ -232,13 +232,13 @@ button[type="submit"],
 
 .notif-card-text p {
   margin: 0 0 6px;
-  color: #4a4a4a;
+  color: #5b321d;
 }
 
 .notif-activate-btn {
   border: none;
-  background: #007bff;
-  color: #fff;
+  background: #e25822;
+  color: #fffdf9;
   padding: 10px 14px;
   border-radius: 6px;
   font-weight: 600;
@@ -247,20 +247,20 @@ button[type="submit"],
 }
 
 .notif-activate-btn:hover {
-  background: #005ec2;
+  background: #9f3b12;
 }
 
 .notif-status {
   font-weight: 600;
-  color: #2f5d9f;
+  color: #9c4a1b;
 }
 
 .notif-status.success {
-  color: #1d7a32;
+  color: #2f8f46;
 }
 
 .notif-status.warning {
-  color: #c0392b;
+  color: #9b2c17;
 }
 
 @media (max-width: 1024px) {
@@ -323,13 +323,13 @@ button[type="submit"],
   align-items: center;
   margin-bottom: 1.5rem;
   padding-bottom: 1rem;
-  border-bottom: 2px solid #f0f0f0;
+  border-bottom: 2px solid #f6deca;
 }
 
 .modal-header h4 {
   margin: 0;
   font-size: 1.5rem;
-  color: #333;
+  color: #2f1b10;
 }
 
 .modal-close {
@@ -337,7 +337,7 @@ button[type="submit"],
   border: none;
   font-size: 1.5rem;
   cursor: pointer;
-  color: #999;
+  color: #9d6b49;
   padding: 0;
   width: 32px;
   height: 32px;
@@ -349,26 +349,26 @@ button[type="submit"],
 }
 
 .modal-close:hover {
-  background-color: #f0f0f0;
-  color: #333;
+  background-color: #f6deca;
+  color: #2f1b10;
 }
 
 .modal-section {
   margin-bottom: 1.5rem;
   padding-bottom: 1.5rem;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid #f6deca;
 }
 
 .modal-section h3 {
   margin: 0 0 1rem;
   font-size: 16px;
-  color: #333;
+  color: #2f1b10;
   font-weight: 600;
 }
 
 .modal-section p {
   margin: 0.5rem 0;
-  color: #666;
+  color: #7a4b2b;
   font-size: 14px;
 }
 
@@ -380,15 +380,15 @@ button[type="submit"],
 }
 
 .modal-table thead {
-  background: #f8f9fa;
+  background: #fff6ec;
 }
 
 .modal-table th {
   padding: 10px;
   text-align: left;
-  border-bottom: 2px solid #ddd;
+  border-bottom: 2px solid #efc9a4;
   font-weight: 600;
-  color: #333;
+  color: #2f1b10;
 }
 
 .modal-table td {
@@ -398,7 +398,7 @@ button[type="submit"],
 
 .modal-section select {
   padding: 10px 12px;
-  border: 1px solid #ddd;
+  border: 1px solid #efc9a4;
   border-radius: 6px;
   font-size: 14px;
   width: 100%;
@@ -408,11 +408,11 @@ button[type="submit"],
 /* Styles pour les lignes du tableau des commandes */
 tbody tr {
   transition: background-color 0.3s ease, box-shadow 0.3s ease;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid #f6deca;
 }
 
 tbody tr:hover {
-  background-color: #f8f9fa;
+  background-color: #fff6ec;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
@@ -430,3 +430,4 @@ tbody tr:hover {
     max-height: 95vh;
   }
 }
+

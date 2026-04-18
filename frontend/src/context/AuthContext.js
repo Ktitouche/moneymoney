@@ -8,29 +8,33 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    const userData = localStorage.getItem('user');
-    
-    if (token && userData) {
-      setUser(JSON.parse(userData));
-    }
-    setLoading(false);
+    const loadSession = async () => {
+      try {
+        await api.get('/auth/csrf-token');
+        const response = await api.get('/users/profil');
+        setUser(response.data || null);
+      } catch (_) {
+        setUser(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadSession();
   }, []);
 
   const login = async (email, motDePasse) => {
     try {
       const response = await api.post('/auth/connexion', { email, motDePasse });
-      const { token, user } = response.data;
-      
-      localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify(user));
+      const { user } = response.data;
+
       setUser(user);
-      
+
       return { success: true };
     } catch (error) {
-      return { 
-        success: false, 
-        message: error.response?.data?.message || 'Erreur de connexion' 
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Erreur de connexion'
       };
     }
   };
@@ -38,24 +42,25 @@ export const AuthProvider = ({ children }) => {
   const register = async (userData) => {
     try {
       const response = await api.post('/auth/inscription', userData);
-      const { token, user } = response.data;
-      
-      localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify(user));
+      const { user } = response.data;
+
       setUser(user);
-      
+
       return { success: true };
     } catch (error) {
-      return { 
-        success: false, 
-        message: error.response?.data?.message || 'Erreur d\'inscription' 
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Erreur d\'inscription'
       };
     }
   };
 
-  const logout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+  const logout = async () => {
+    try {
+      await api.post('/auth/deconnexion');
+    } catch (_) {
+      // Ignorer les erreurs réseau lors de la déconnexion locale
+    }
     setUser(null);
   };
 

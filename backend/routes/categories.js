@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Category = require('../models/Category');
 const { auth, isAdmin } = require('../middleware/auth');
-const upload = require('../middleware/upload');
+const { upload, validateUploadedImages } = require('../middleware/upload');
 
 // Obtenir toutes les catégories (public)
 router.get('/', async (req, res) => {
@@ -10,7 +10,7 @@ router.get('/', async (req, res) => {
     const categories = await Category.find().sort({ nom: 1 });
     res.json(categories);
   } catch (error) {
-    res.status(500).json({ message: 'Erreur serveur', error: error.message });
+    res.status(500).json({ message: 'Erreur serveur' });
   }
 });
 
@@ -25,12 +25,12 @@ router.get('/:id', async (req, res) => {
 
     res.json(category);
   } catch (error) {
-    res.status(500).json({ message: 'Erreur serveur', error: error.message });
+    res.status(500).json({ message: 'Erreur serveur' });
   }
 });
 
 // Créer une catégorie (admin uniquement)
-router.post('/', auth, isAdmin, upload.single('image'), async (req, res) => {
+router.post('/', auth, isAdmin, upload.single('image'), validateUploadedImages, async (req, res) => {
   try {
     const { nom, description } = req.body;
     const image = req.file ? req.file.path : null;
@@ -45,12 +45,12 @@ router.post('/', auth, isAdmin, upload.single('image'), async (req, res) => {
 
     res.status(201).json({ message: 'Catégorie créée avec succès', category });
   } catch (error) {
-    res.status(500).json({ message: 'Erreur serveur', error: error.message });
+    res.status(500).json({ message: 'Erreur serveur' });
   }
 });
 
 // Mettre à jour une catégorie (admin uniquement)
-router.put('/:id', auth, isAdmin, upload.single('image'), async (req, res) => {
+router.put('/:id', auth, isAdmin, upload.single('image'), validateUploadedImages, async (req, res) => {
   try {
     const update = { ...req.body };
     if (req.file) {
@@ -69,7 +69,7 @@ router.put('/:id', auth, isAdmin, upload.single('image'), async (req, res) => {
 
     res.json({ message: 'Catégorie mise à jour', category });
   } catch (error) {
-    res.status(500).json({ message: 'Erreur serveur', error: error.message });
+    res.status(500).json({ message: 'Erreur serveur' });
   }
 });
 
@@ -84,7 +84,7 @@ router.delete('/:id', auth, isAdmin, async (req, res) => {
 
     res.json({ message: 'Catégorie supprimée avec succès' });
   } catch (error) {
-    res.status(500).json({ message: 'Erreur serveur', error: error.message });
+    res.status(500).json({ message: 'Erreur serveur' });
   }
 });
 

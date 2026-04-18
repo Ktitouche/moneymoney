@@ -3,13 +3,11 @@ import { useNavigate, Routes, Route, Link } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
 import api from '../../utils/api';
 import { toast } from 'react-toastify';
-import { MdDelete, MdEdit } from 'react-icons/md';
 import './Admin.css';
 
 const Admin = () => {
   const { user, loading } = useContext(AuthContext);
   const navigate = useNavigate();
-  const [ordersCount, setOrdersCount] = useState(0);
   const [lastOrderId, setLastOrderId] = useState(null);
   const [lastNotifiedId, setLastNotifiedId] = useState(() => {
     try {
@@ -58,76 +56,72 @@ const Admin = () => {
 
       try {
         const res = await api.get('/orders?limite=1');
-        const total = res.data?.total;
         const latest = res.data?.commandes?.[0];
 
-        if (typeof total === 'number') {
-          setOrdersCount(total);
-          const alreadyNotified = lastNotifiedId && latest?._id === lastNotifiedId;
-          if (
-            latest?._id &&
-            Notification?.permission === 'granted' &&
-            !alreadyNotified &&
-            latest._id !== lastOrderId
-          ) {
-            const nom = latest.utilisateur?.nom || latest.clientGuest?.nom || latest.adresseLivraison?.nom || 'Client';
-            const prenom = latest.utilisateur?.prenom || latest.clientGuest?.prenom || latest.adresseLivraison?.prenom || '';
-            const montant = latest.montantTotal ? `${latest.montantTotal} DA` : '';
-            const produits = (latest.produits || []).map((p) => {
-              const name = p.produit?.nom || 'Produit';
-              return `${name} x${p.quantite || 1}`;
-            }).filter(Boolean);
+        const alreadyNotified = lastNotifiedId && latest?._id === lastNotifiedId;
+        if (
+          latest?._id &&
+          Notification?.permission === 'granted' &&
+          !alreadyNotified &&
+          latest._id !== lastOrderId
+        ) {
+          const nom = latest.utilisateur?.nom || latest.clientGuest?.nom || latest.adresseLivraison?.nom || 'Client';
+          const prenom = latest.utilisateur?.prenom || latest.clientGuest?.prenom || latest.adresseLivraison?.prenom || '';
+          const montant = latest.montantTotal ? `${latest.montantTotal} DA` : '';
+          const produits = (latest.produits || []).map((p) => {
+            const name = p.produit?.nom || 'Produit';
+            return `${name} x${p.quantite || 1}`;
+          }).filter(Boolean);
 
-            const produitsTexte = produits.length ? ` · ${produits.join(', ')}` : '';
-            const body = `${nom} ${prenom} vient de passer une commande${montant ? ` pour ${montant}` : ''}${produitsTexte}.`;
+          const produitsTexte = produits.length ? ` · ${produits.join(', ')}` : '';
+          const body = `${nom} ${prenom} vient de passer une commande${montant ? ` pour ${montant}` : ''}${produitsTexte}.`;
 
-            const notification = new Notification('🛒 Nouvelle commande', {
-              body: body.trim(),
-              icon: 'https://via.placeholder.com/96?text=Shop',
-              requireInteraction: true,
-              tag: `order-${latest._id}`,
-              silent: false,
-              vibrate: [200, 100, 200]
-            });
+          const notification = new Notification('🛒 Nouvelle commande', {
+            body: body.trim(),
+            icon: 'https://via.placeholder.com/96?text=Shop',
+            requireInteraction: true,
+            tag: `order-${latest._id}`,
+            silent: false,
+            vibrate: [200, 100, 200]
+          });
 
-            // Son de notification (si supporté)
-            if ('AudioContext' in window || 'webkitAudioContext' in window) {
-              try {
-                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                const oscillator = audioContext.createOscillator();
-                const gainNode = audioContext.createGain();
-
-                oscillator.connect(gainNode);
-                gainNode.connect(audioContext.destination);
-
-                oscillator.frequency.value = 800;
-                oscillator.type = 'sine';
-                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
-
-                oscillator.start(audioContext.currentTime);
-                oscillator.stop(audioContext.currentTime + 4);
-              } catch (err) {
-                // Son non supporté, continuer sans
-              }
-            }
-
-            // Mettre en avant la notification
-            notification.onclick = () => {
-              window.focus();
-              notification.close();
-            };
-            setLastOrderId(latest._id);
-            setLastNotifiedId(latest._id);
+          // Son de notification (si supporté)
+          if ('AudioContext' in window || 'webkitAudioContext' in window) {
             try {
-              localStorage.setItem('lastNotifiedOrderId', latest._id);
+              const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+              const oscillator = audioContext.createOscillator();
+              const gainNode = audioContext.createGain();
+
+              oscillator.connect(gainNode);
+              gainNode.connect(audioContext.destination);
+
+              oscillator.frequency.value = 800;
+              oscillator.type = 'sine';
+              gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+              gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+
+              oscillator.start(audioContext.currentTime);
+              oscillator.stop(audioContext.currentTime + 4);
             } catch (err) {
-              // ignore storage failures
+              // Son non supporté, continuer sans
             }
-          } else if (latest?._id && latest._id !== lastOrderId) {
-            // Mettre à jour lastOrderId même si notification pas envoyée
-            setLastOrderId(latest._id);
           }
+
+          // Mettre en avant la notification
+          notification.onclick = () => {
+            window.focus();
+            notification.close();
+          };
+          setLastOrderId(latest._id);
+          setLastNotifiedId(latest._id);
+          try {
+            localStorage.setItem('lastNotifiedOrderId', latest._id);
+          } catch (err) {
+            // ignore storage failures
+          }
+        } else if (latest?._id && latest._id !== lastOrderId) {
+          // Mettre à jour lastOrderId même si notification pas envoyée
+          setLastOrderId(latest._id);
         }
       } catch (err) {
         // silencieux pour ne pas polluer la console

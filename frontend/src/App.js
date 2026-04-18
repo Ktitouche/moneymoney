@@ -23,6 +23,7 @@ import OrderConfirmation from './pages/OrderConfirmation/OrderConfirmation';
 import MyOrders from './pages/MyOrders/MyOrders';
 import Profile from './pages/Profile/Profile';
 import Admin from './pages/Admin/Admin';
+import { trackMetaEvent } from './utils/metaPixel';
 
 // Scroll to top on route change (works well on mobile)
 function ScrollToTop() {
@@ -41,6 +42,11 @@ function ScrollToTop() {
     const t = setTimeout(scrollNow, 0);
     return () => clearTimeout(t);
   }, [location.pathname, location.search]);
+
+  useEffect(() => {
+    trackMetaEvent('PageView');
+  }, [location.pathname, location.search]);
+
   return null;
 }
 

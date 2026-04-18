@@ -2,12 +2,16 @@ const express = require('express');
 const router = express.Router();
 const Product = require('../models/Product');
 const { auth, isAdmin } = require('../middleware/auth');
-const upload = require('../middleware/upload');
+const { upload, validateUploadedImages } = require('../middleware/upload');
+
+const escapeRegex = (input = '') => String(input).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 // Obtenir tous les produits (public)
 router.get('/', async (req, res) => {
   try {
-    const { categorie, recherche, page = 1, limite = 12, enVedette } = req.query;
+    const { categorie, recherche, enVedette } = req.query;
+    const page = Math.max(parseInt(req.query.page, 10) || 1, 1);
+    const limite = Math.min(Math.max(parseInt(req.query.limite, 10) || 12, 1), 50);
 
     const query = { actif: true };
 
@@ -16,10 +20,11 @@ router.get('/', async (req, res) => {
     }
 
     if (recherche) {
+      const safeSearch = escapeRegex(String(recherche).slice(0, 80));
       query.$or = [
-        { nom: { $regex: recherche, $options: 'i' } },
-        { description: { $regex: recherche, $options: 'i' } },
-        { marque: { $regex: recherche, $options: 'i' } }
+        { nom: { $regex: safeSearch, $options: 'i' } },
+        { description: { $regex: safeSearch, $options: 'i' } },
+        { marque: { $regex: safeSearch, $options: 'i' } }
       ];
     }
 
@@ -42,7 +47,7 @@ router.get('/', async (req, res) => {
       total
     });
   } catch (error) {
-    res.status(500).json({ message: 'Erreur serveur', error: error.message });
+    res.status(500).json({ message: 'Erreur serveur' });
   }
 });
 
@@ -57,16 +62,25 @@ router.get('/:id', async (req, res) => {
 
     res.json(produit);
   } catch (error) {
-    res.status(500).json({ message: 'Erreur serveur', error: error.message });
+    res.status(500).json({ message: 'Erreur serveur' });
   }
 });
 
 // Créer un produit (admin uniquement)
-router.post('/', upload.array('images', 5), auth, isAdmin, async (req, res) => {
+router.post('/', auth, isAdmin, upload.array('images', 5), validateUploadedImages, async (req, res) => {
   try {
     const { nom, description, prix, prixPromo, categorie, stock, marque, caracteristiques, enVedette } = req.body;
 
     const images = req.files ? req.files.map(file => file.path) : [];
+
+    let parsedCaracteristiques = [];
+    if (caracteristiques) {
+      try {
+        parsedCaracteristiques = JSON.parse(caracteristiques);
+      } catch (err) {
+        return res.status(400).json({ message: 'Format des caractéristiques invalide' });
+      }
+    }
 
     const produit = new Product({
       nom,
@@ -77,7 +91,7 @@ router.post('/', upload.array('images', 5), auth, isAdmin, async (req, res) => {
       images,
       stock,
       marque,
-      caracteristiques: caracteristiques ? JSON.parse(caracteristiques) : [],
+      caracteristiques: parsedCaracteristiques,
       enVedette: enVedette === 'true'
     });
 
@@ -85,12 +99,12 @@ router.post('/', upload.array('images', 5), auth, isAdmin, async (req, res) => {
 
     res.status(201).json({ message: 'Produit créé avec succès', produit });
   } catch (error) {
-    res.status(500).json({ message: 'Erreur serveur', error: error.message });
+    res.status(500).json({ message: 'Erreur serveur' });
   }
 });
 
 // Mettre à jour un produit (admin uniquement)
-router.put('/:id', upload.array('images', 5), auth, isAdmin, async (req, res) => {
+router.put('/:id', auth, isAdmin, upload.array('images', 5), validateUploadedImages, async (req, res) => {
   try {
     const { nom, description, prix, prixPromo, categorie, stock, marque, caracteristiques, enVedette } = req.body;
     const images = req.files ? req.files.map((file) => file.path) : [];
@@ -133,7 +147,7 @@ router.put('/:id', upload.array('images', 5), auth, isAdmin, async (req, res) =>
 
     res.json({ message: 'Produit mis à jour', produit });
   } catch (error) {
-    res.status(500).json({ message: 'Erreur serveur', error: error.message });
+    res.status(500).json({ message: 'Erreur serveur' });
   }
 });
 
@@ -148,7 +162,7 @@ router.delete('/:id', auth, isAdmin, async (req, res) => {
 
     res.json({ message: 'Produit supprimé avec succès' });
   } catch (error) {
-    res.status(500).json({ message: 'Erreur serveur', error: error.message });
+    res.status(500).json({ message: 'Erreur serveur' });
   }
 });
 

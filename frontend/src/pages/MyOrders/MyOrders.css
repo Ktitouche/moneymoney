@@ -1,4 +1,4 @@
-.my-orders-page {
+﻿.my-orders-page {
   padding: 2rem 0;
   min-height: 70vh;
 }
@@ -13,7 +13,7 @@
 
 .no-orders p {
   font-size: 1.2rem;
-  color: #666;
+  color: #7a4b2b;
   margin-bottom: 2rem;
 }
 
@@ -35,8 +35,8 @@
   justify-content: space-between;
   align-items: center;
   padding: 1.5rem;
-  background-color: #f8f9fa;
-  border-bottom: 1px solid #e0e0e0;
+  background-color: #fff6ec;
+  border-bottom: 1px solid #efc9a4;
 }
 
 .order-number {
@@ -47,11 +47,11 @@
 
 .order-number strong {
   font-size: 1.1rem;
-  color: #333;
+  color: #2f1b10;
 }
 
 .order-date {
-  color: #666;
+  color: #7a4b2b;
   font-size: 0.9rem;
 }
 
@@ -63,28 +63,28 @@
 }
 
 .order-status.warning {
-  background-color: #fff3cd;
-  color: #856404;
+  background-color: #ffe6bf;
+  color: #7f4a18;
 }
 
 .order-status.info {
-  background-color: #d1ecf1;
-  color: #0c5460;
+  background-color: #fde8d1;
+  color: #6d3f1e;
 }
 
 .order-status.primary {
-  background-color: #cce5ff;
-  color: #004085;
+  background-color: #ffe5cc;
+  color: #7d3f14;
 }
 
 .order-status.success {
-  background-color: #d4edda;
-  color: #155724;
+  background-color: #d6f0db;
+  color: #256b37;
 }
 
 .order-status.danger {
-  background-color: #f8d7da;
-  color: #721c24;
+  background-color: #ffd9cc;
+  color: #7b2313;
 }
 
 .order-items {
@@ -95,7 +95,7 @@
   display: flex;
   justify-content: space-between;
   padding: 0.75rem 0;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid #f6deca;
 }
 
 .order-item:last-child {
@@ -110,17 +110,17 @@
 
 .order-item-name {
   font-weight: 500;
-  color: #333;
+  color: #2f1b10;
 }
 
 .order-item-qty {
   font-size: 0.9rem;
-  color: #666;
+  color: #7a4b2b;
 }
 
 .order-item-price {
   font-weight: 600;
-  color: #007bff;
+  color: #e25822;
 }
 
 .order-footer {
@@ -128,8 +128,8 @@
   justify-content: space-between;
   align-items: center;
   padding: 1.5rem;
-  background-color: #f8f9fa;
-  border-top: 1px solid #e0e0e0;
+  background-color: #fff6ec;
+  border-top: 1px solid #efc9a4;
   gap: 2rem;
   flex-wrap: wrap;
 }
@@ -144,23 +144,23 @@
   justify-content: space-between;
   padding: 0.5rem 0;
   font-size: 0.95rem;
-  color: #555;
+  color: #6a3d24;
 }
 
 .summary-line.total {
   font-size: 1.1rem;
   font-weight: 600;
-  color: #333;
+  color: #2f1b10;
   margin-top: 0.5rem;
   padding-top: 0.5rem;
-  border-top: 1px solid #e0e0e0;
+  border-top: 1px solid #efc9a4;
 }
 
 .order-total {
   display: flex;
   gap: 1rem;
   font-size: 1.2rem;
-  color: #333;
+  color: #2f1b10;
 }
 
 .btn-sm {
@@ -185,3 +185,5 @@
     width: 100%;
   }
 }
+
+

@@ -148,7 +148,7 @@ const Header = () => {
         <div className="container">
           <div className="header-content">
             <Link to="/" className="logo">
-              <h1>Koulchi W Walou</h1>
+              <h1>Maison Brasero</h1>
             </Link>
 
             <form className="search-form search-form-desktop" onSubmit={handleSearch}>

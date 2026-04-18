@@ -8,6 +8,10 @@ import { toast } from 'react-toastify';
 const ProductCard = ({ product }) => {
   const { addToCart } = useContext(CartContext);
   const API_URL = process.env.REACT_APP_API_URL?.replace('/api', '') || 'http://localhost:5000';
+  const firstImage = product.images && product.images.length > 0 ? product.images[0] : null;
+  const imageSrc = firstImage
+    ? (firstImage.startsWith('http') ? firstImage : `${API_URL}/${firstImage}`)
+    : 'https://via.placeholder.com/300x300?text=Produit';
 
   const handleAddToCart = (e) => {
     e.preventDefault();
@@ -27,20 +31,13 @@ const ProductCard = ({ product }) => {
               -{Math.round(((product.prix - product.prixPromo) / product.prix) * 100)}%
             </span>
           )}
-          {product.images && product.images.length > 0 ? (
-            <img 
-              src={`${API_URL}/${product.images[0]}`} 
-              alt={product.nom}
-              onError={(e) => {
-                e.target.src = 'https://via.placeholder.com/300x300?text=Produit';
-              }}
-            />
-          ) : (
-            <img 
-              src="https://via.placeholder.com/300x300?text=Produit" 
-              alt={product.nom} 
-            />
-          )}
+          <img
+            src={imageSrc}
+            alt={product.nom}
+            onError={(e) => {
+              e.target.src = 'https://via.placeholder.com/300x300?text=Produit';
+            }}
+          />
           {product.stock === 0 && (
             <div className="out-of-stock">Rupture de stock</div>
           )}
@@ -48,7 +45,7 @@ const ProductCard = ({ product }) => {
 
         <div className="product-info">
           <h3 className="product-name">{product.nom}</h3>
-          
+
           {product.marque && (
             <p className="product-brand">{product.marque}</p>
           )}
@@ -62,7 +59,7 @@ const ProductCard = ({ product }) => {
         </div>
       </Link>
 
-      <button 
+      <button
         className="add-to-cart-btn"
         onClick={handleAddToCart}
         disabled={product.stock === 0}

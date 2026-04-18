@@ -1,26 +1,57 @@
 const express = require('express');
 const router = express.Router();
+const mongoose = require('mongoose');
+const rateLimit = require('express-rate-limit');
+const { body, validationResult } = require('express-validator');
 const Order = require('../models/Order');
 const Product = require('../models/Product');
 const { auth, isAdmin } = require('../middleware/auth');
+const { getShippingFee } = require('../utils/shippingRates');
+
+const guestOrderLimiter = rateLimit({
+  windowMs: 10 * 60 * 1000,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { message: 'Trop de tentatives. Réessayez plus tard.' }
+});
+
+const orderValidation = [
+  body('produits').isArray({ min: 1 }).withMessage('Produits manquants'),
+  body('produits.*.produit').isMongoId().withMessage('Produit invalide'),
+  body('produits.*.quantite').isInt({ min: 1, max: 100 }).withMessage('Quantité invalide'),
+  body('adresseLivraison.wilaya').isString().trim().notEmpty().withMessage('Wilaya invalide'),
+  body('typeLivraison').optional().isIn(['domicile', 'point_relais'])
+];
 
 // Créer une commande (utilisateur connecté)
-router.post('/', auth, async (req, res) => {
-  try {
-    const { produits, adresseLivraison, modePaiement, typeLivraison, fraisLivraison } = req.body;
+router.post('/', auth, orderValidation, async (req, res) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
 
-    // Calculer le montant total
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      await session.abortTransaction();
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { produits, adresseLivraison, modePaiement, typeLivraison } = req.body;
+
+    // Calculer le montant total et vérifier le stock avec transaction
     let montantTotal = 0;
     const produitsCommande = [];
 
     for (const item of produits) {
-      const produit = await Product.findById(item.produit);
+      const produit = await Product.findById(item.produit).session(session);
 
       if (!produit) {
+        await session.abortTransaction();
         return res.status(404).json({ message: `Produit ${item.produit} non trouvé` });
       }
 
       if (produit.stock < item.quantite) {
+        await session.abortTransaction();
         return res.status(400).json({ message: `Stock insuffisant pour ${produit.nom}` });
       }
 
@@ -32,13 +63,24 @@ router.post('/', auth, async (req, res) => {
         quantite: item.quantite,
         prix: prix
       });
-
-      // Réduire le stock
-      produit.stock -= item.quantite;
-      await produit.save();
     }
 
-    const fees = typeof fraisLivraison === 'number' ? fraisLivraison : 0;
+    // Réduire le stock de manière atomique avec $inc
+    for (const item of produits) {
+      const updatedProduct = await Product.findByIdAndUpdate(
+        item.produit,
+        { $inc: { stock: -item.quantite } },
+        { new: true, session, runValidators: true }
+      );
+
+      if (!updatedProduct || updatedProduct.stock < 0) {
+        await session.abortTransaction();
+        return res.status(400).json({ message: `Stock insuffisant pour ${item.produit}` });
+      }
+    }
+
+    const deliveryType = typeLivraison === 'point_relais' ? 'point_relais' : 'domicile';
+    const fees = getShippingFee(adresseLivraison?.wilaya, deliveryType);
 
     const orderData = {
       utilisateur: req.user.id,
@@ -47,56 +89,88 @@ router.post('/', auth, async (req, res) => {
       montantTotal: montantTotal + fees,
       adresseLivraison,
       modePaiement: modePaiement || 'a_la_livraison',
+      typeLivraison: deliveryType,
       fraisLivraison: fees
     };
 
-    // Assigner typeLivraison seulement si défini
-    if (typeLivraison) {
-      orderData.typeLivraison = typeLivraison;
-    }
-
     const commande = new Order(orderData);
+    await commande.save({ session });
 
-    await commande.save();
-
+    await session.commitTransaction();
     res.status(201).json({ message: 'Commande créée avec succès', commande });
   } catch (error) {
-    res.status(500).json({ message: 'Erreur serveur', error: error.message });
+    await session.abortTransaction();
+    res.status(500).json({ message: 'Erreur serveur' });
+  } finally {
+    session.endSession();
   }
 });
 
 // Créer une commande invité (sans compte)
-router.post('/guest', async (req, res) => {
+router.post('/guest', guestOrderLimiter, [
+  ...orderValidation,
+  body('clientGuest.nom').optional().isString().trim().isLength({ max: 80 }),
+  body('clientGuest.prenom').optional().isString().trim().isLength({ max: 80 }),
+  body('clientGuest.email').optional().isEmail(),
+  body('clientGuest.telephone').optional().isString().trim().isLength({ max: 25 })
+], async (req, res) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
   try {
-    const { produits, clientGuest, adresseLivraison, modePaiement, typeLivraison, fraisLivraison } = req.body;
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      await session.abortTransaction();
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { produits, clientGuest, adresseLivraison, modePaiement, typeLivraison } = req.body;
 
     if (!clientGuest) {
+      await session.abortTransaction();
       return res.status(400).json({ message: 'Informations invité manquantes' });
     }
 
     if (!Array.isArray(produits) || produits.length === 0) {
+      await session.abortTransaction();
       return res.status(400).json({ message: 'Produits manquants' });
     }
 
     let montantTotal = 0;
     const produitsCommande = [];
 
+    // Vérifier le stock et calculer le montant
     for (const item of produits) {
-      const produit = await Product.findById(item.produit);
+      const produit = await Product.findById(item.produit).session(session);
       if (!produit) {
+        await session.abortTransaction();
         return res.status(404).json({ message: `Produit ${item.produit} non trouvé` });
       }
       if (produit.stock < item.quantite) {
+        await session.abortTransaction();
         return res.status(400).json({ message: `Stock insuffisant pour ${produit.nom}` });
       }
       const prix = produit.prixPromo || produit.prix;
       montantTotal += prix * item.quantite;
       produitsCommande.push({ produit: item.produit, quantite: item.quantite, prix });
-      produit.stock -= item.quantite;
-      await produit.save();
     }
 
-    const fees = typeof fraisLivraison === 'number' ? fraisLivraison : 0;
+    // Réduire le stock de manière atomique avec $inc
+    for (const item of produits) {
+      const updatedProduct = await Product.findByIdAndUpdate(
+        item.produit,
+        { $inc: { stock: -item.quantite } },
+        { new: true, session, runValidators: true }
+      );
+
+      if (!updatedProduct || updatedProduct.stock < 0) {
+        await session.abortTransaction();
+        return res.status(400).json({ message: `Stock insuffisant pour ${item.produit}` });
+      }
+    }
+
+    const deliveryType = typeLivraison === 'point_relais' ? 'point_relais' : 'domicile';
+    const fees = getShippingFee(adresseLivraison?.wilaya, deliveryType);
 
     const commande = new Order({
       produits: produitsCommande,
@@ -109,15 +183,19 @@ router.post('/guest', async (req, res) => {
         telephone: clientGuest.telephone || ''
       },
       adresseLivraison,
-      modePaiement: 'a_la_livraison',
-      typeLivraison: typeLivraison || 'domicile',
+      modePaiement: modePaiement || 'a_la_livraison',
+      typeLivraison: deliveryType,
       fraisLivraison: fees
     });
 
-    await commande.save();
+    await commande.save({ session });
+    await session.commitTransaction();
     res.status(201).json({ message: 'Commande invitée créée avec succès', commande });
   } catch (error) {
-    res.status(500).json({ message: 'Erreur serveur', error: error.message });
+    await session.abortTransaction();
+    res.status(500).json({ message: 'Erreur serveur' });
+  } finally {
+    session.endSession();
   }
 });
 
@@ -130,14 +208,16 @@ router.get('/mes-commandes', auth, async (req, res) => {
 
     res.json(commandes);
   } catch (error) {
-    res.status(500).json({ message: 'Erreur serveur', error: error.message });
+    res.status(500).json({ message: 'Erreur serveur' });
   }
 });
 
 // Obtenir toutes les commandes (admin uniquement)
 router.get('/', auth, isAdmin, async (req, res) => {
   try {
-    const { statut, page = 1, limite = 20 } = req.query;
+    const { statut } = req.query;
+    const page = Math.max(parseInt(req.query.page, 10) || 1, 1);
+    const limite = Math.min(Math.max(parseInt(req.query.limite, 10) || 20, 1), 100);
 
     const query = statut ? { statut } : {};
 
@@ -157,7 +237,7 @@ router.get('/', auth, isAdmin, async (req, res) => {
       total
     });
   } catch (error) {
-    res.status(500).json({ message: 'Erreur serveur', error: error.message });
+    res.status(500).json({ message: 'Erreur serveur' });
   }
 });
 
@@ -183,19 +263,26 @@ router.get('/:id', auth, async (req, res) => {
 
     res.json(commande);
   } catch (error) {
-    res.status(500).json({ message: 'Erreur serveur', error: error.message });
+    res.status(500).json({ message: 'Erreur serveur' });
   }
 });
 
 // Mettre à jour le statut d'une commande (admin uniquement)
-router.put('/:id/statut', auth, isAdmin, async (req, res) => {
+router.put('/:id/statut', auth, isAdmin, [
+  body('statut').isIn(['en_attente', 'confirmee', 'en_preparation', 'expediee', 'livree', 'annulee'])
+], async (req, res) => {
   try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
     const { statut } = req.body;
 
     const commande = await Order.findByIdAndUpdate(
       req.params.id,
       { statut },
-      { new: true }
+      { new: true, runValidators: true }
     );
 
     if (!commande) {
@@ -204,7 +291,7 @@ router.put('/:id/statut', auth, isAdmin, async (req, res) => {
 
     res.json({ message: 'Statut mis à jour', commande });
   } catch (error) {
-    res.status(500).json({ message: 'Erreur serveur', error: error.message });
+    res.status(500).json({ message: 'Erreur serveur' });
   }
 });
 

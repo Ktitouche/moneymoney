@@ -1,26 +1,40 @@
-.hero {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+﻿.hero {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(125deg, #2f1b10 0%, #c23b17 50%, #ff7a1a 100%);
+  color: #fffdf9;
   padding: 4rem 0;
   margin-bottom: 3rem;
 }
 
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 18% 25%, rgba(255, 183, 76, 0.34), transparent 30%),
+    radial-gradient(circle at 82% 18%, rgba(255, 110, 41, 0.32), transparent 28%);
+  pointer-events: none;
+}
+
 .hero-content {
+  position: relative;
   text-align: center;
   max-width: 800px;
   margin: 0 auto;
 }
 
 .hero h1 {
-  font-size: 3rem;
+  font-size: 3.3rem;
   margin-bottom: 1rem;
-  font-weight: bold;
+  font-weight: 700;
+  letter-spacing: 1px;
 }
 
 .hero p {
   font-size: 1.3rem;
   margin-bottom: 2rem;
-  opacity: 0.9;
+  opacity: 0.95;
 }
 
 .btn-large {
@@ -32,7 +46,7 @@
   font-size: 2rem;
   text-align: center;
   margin-bottom: 2rem;
-  color: #333;
+  color: #2f1b10;
   font-weight: bold;
 }
 
@@ -66,7 +80,7 @@
   width: 100%;
   height: 200px;
   overflow: hidden;
-  background-color: #f5f5f5;
+  background-color: #fff2e2;
 }
 
 .category-image img {
@@ -82,7 +96,7 @@
 
 .category-card h3 {
   padding: 1rem;
-  color: #333;
+  color: #2f1b10;
   font-size: 1.1rem;
   font-weight: 600;
 }
@@ -94,7 +108,7 @@
 }
 
 .features-section {
-  background-color: #f8f9fa;
+  background-color: #fff6ec;
   padding: 3rem 0;
   margin-bottom: 0;
 }
@@ -116,16 +130,17 @@
 .feature-icon {
   font-size: 3rem;
   margin-bottom: 1rem;
+  filter: drop-shadow(0 8px 16px rgba(135, 56, 16, 0.22));
 }
 
 .feature-card h3 {
-  color: #333;
+  color: #2f1b10;
   margin-bottom: 0.5rem;
   font-size: 1.2rem;
 }
 
 .feature-card p {
-  color: #666;
+  color: #7a4b2b;
   line-height: 1.5;
 }
 

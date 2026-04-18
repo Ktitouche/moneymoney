@@ -4,6 +4,7 @@ import { CartContext } from '../../context/CartContext';
 import { AuthContext } from '../../context/AuthContext';
 import api from '../../utils/api';
 import { toast } from 'react-toastify';
+import { getCartMetaPayload, trackMetaEvent } from '../../utils/metaPixel';
 import './Checkout.css';
 
 const Checkout = () => {
@@ -11,6 +12,7 @@ const Checkout = () => {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
   const formRef = useRef(null);
+  const initiatedCheckoutRef = useRef(false);
 
   const [formData, setFormData] = useState({
     nom: user?.nom || '',
@@ -87,7 +89,7 @@ const Checkout = () => {
     'Adrar': [
       'Adrar - Cité 32 Logements el hay El Gherbi à coté du lycée Khaled Ibn Walid',
       'Timimoun - Rue mohamed El Hashemi'
-    ], 
+    ],
     'Timimoun': [
       'Timimoun - Rue mohamed El Hashemi'],
     'Aïn Defla': [
@@ -348,6 +350,13 @@ const Checkout = () => {
       }));
     }
   }, [user, cart, navigate]);
+
+  useEffect(() => {
+    if (cart.length > 0 && !initiatedCheckoutRef.current) {
+      trackMetaEvent('InitiateCheckout', getCartMetaPayload(cart));
+      initiatedCheckoutRef.current = true;
+    }
+  }, [cart]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;

@@ -1,4 +1,4 @@
-.login-page {
+﻿.login-page {
   padding: 3rem 0;
   min-height: 70vh;
   display: flex;
@@ -21,19 +21,19 @@
 
 .tab {
   padding: 1.25rem;
-  background-color: #f8f9fa;
+  background-color: #fff6ec;
   border: none;
   font-size: 1.1rem;
   font-weight: 600;
-  color: #666;
+  color: #7a4b2b;
   transition: all 0.3s;
   border-bottom: 3px solid transparent;
 }
 
 .tab.active {
   background-color: white;
-  color: #007bff;
-  border-bottom-color: #007bff;
+  color: #e25822;
+  border-bottom-color: #e25822;
 }
 
 .login-form {
@@ -48,7 +48,7 @@
 
 .form-hint {
   display: block;
-  color: #666;
+  color: #7a4b2b;
   font-size: 0.85rem;
   margin-top: 0.25rem;
 }
@@ -62,19 +62,19 @@
 
 .login-footer {
   padding: 1.5rem 2rem;
-  background-color: #f8f9fa;
+  background-color: #fff6ec;
   text-align: center;
 }
 
 .login-footer p {
-  color: #666;
+  color: #7a4b2b;
   margin: 0;
 }
 
 .link-button {
   background: none;
   border: none;
-  color: #007bff;
+  color: #e25822;
   font-weight: 600;
   padding: 0;
   text-decoration: underline;
@@ -82,7 +82,7 @@
 }
 
 .link-button:hover {
-  color: #0056b3;
+  color: #b93f13;
 }
 
 @media (max-width: 768px) {
@@ -94,3 +94,5 @@
     grid-template-columns: 1fr;
   }
 }
+
+

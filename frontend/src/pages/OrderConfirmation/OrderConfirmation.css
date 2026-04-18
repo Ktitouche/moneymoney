@@ -1,4 +1,4 @@
-.order-confirmation-page {
+﻿.order-confirmation-page {
   padding: 3rem 0;
   min-height: 70vh;
 }
@@ -15,25 +15,25 @@
 
 .success-icon {
   font-size: 5rem;
-  color: #28a745;
+  color: #2f8f46;
   margin-bottom: 1.5rem;
 }
 
 .confirmation-card h1 {
   font-size: 2.5rem;
-  color: #333;
+  color: #2f1b10;
   margin-bottom: 1rem;
 }
 
 .confirmation-message {
   font-size: 1.1rem;
-  color: #666;
+  color: #7a4b2b;
   line-height: 1.6;
   margin-bottom: 2rem;
 }
 
 .order-details {
-  background-color: #f8f9fa;
+  background-color: #fff6ec;
   padding: 2rem;
   border-radius: 8px;
   margin-bottom: 2rem;
@@ -42,7 +42,7 @@
 
 .order-details h2 {
   font-size: 1.5rem;
-  color: #333;
+  color: #2f1b10;
   margin-bottom: 1.5rem;
   text-align: center;
 }
@@ -59,19 +59,19 @@
 }
 
 .detail-line span {
-  color: #666;
+  color: #7a4b2b;
 }
 
 .detail-line strong {
-  color: #333;
+  color: #2f1b10;
 }
 
 .status {
-  color: #007bff;
+  color: #e25822;
 }
 
 .shipping-info {
-  background-color: #f8f9fa;
+  background-color: #fff6ec;
   padding: 1.5rem;
   border-radius: 8px;
   margin-bottom: 2rem;
@@ -80,17 +80,17 @@
 
 .shipping-info h3 {
   font-size: 1.2rem;
-  color: #333;
+  color: #2f1b10;
   margin-bottom: 1rem;
 }
 
 .shipping-info p {
-  color: #666;
+  color: #7a4b2b;
   line-height: 1.8;
 }
 
 .order-items {
-  background-color: #f8f9fa;
+  background-color: #fff6ec;
   padding: 1.5rem;
   border-radius: 8px;
   margin-bottom: 2rem;
@@ -99,7 +99,7 @@
 
 .order-items h3 {
   font-size: 1.2rem;
-  color: #333;
+  color: #2f1b10;
   margin-bottom: 1rem;
 }
 
@@ -122,13 +122,13 @@
 }
 
 .item-name {
-  color: #333;
+  color: #2f1b10;
   font-weight: 600;
   flex: 1;
 }
 
 .item-breakdown {
-  color: #666;
+  color: #7a4b2b;
   font-size: 0.9rem;
   margin-top: 0.25rem;
 }
@@ -143,20 +143,20 @@
   display: flex;
   justify-content: space-between;
   padding: 0.5rem 0;
-  color: #555;
+  color: #6a3d24;
 }
 
 .summary-line.total {
   font-size: 1.1rem;
   font-weight: 600;
-  color: #333;
+  color: #2f1b10;
   margin-top: 0.5rem;
   padding-top: 0.5rem;
 }
 
 .item-qty,
 .item-price {
-  color: #555;
+  color: #6a3d24;
   text-align: right;
 }
 
@@ -183,3 +183,4 @@
     width: 100%;
   }
 }
+
