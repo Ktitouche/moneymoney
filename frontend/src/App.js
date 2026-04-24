@@ -18,6 +18,11 @@ import ProductDetail from './pages/ProductDetail/ProductDetail';
 import Cart from './pages/Cart/Cart';
 import Login from './pages/Login/Login';
 import Contact from './pages/Contact/Contact';
+import FAQ from './pages/FAQ/FAQ';
+import Livraison from './pages/Livraison/Livraison';
+import Retours from './pages/Retours/Retours';
+import CGV from './pages/CGV/CGV';
+import Confidentialite from './pages/Confidentialite/Confidentialite';
 import Checkout from './pages/Checkout/Checkout';
 import OrderConfirmation from './pages/OrderConfirmation/OrderConfirmation';
 import MyOrders from './pages/MyOrders/MyOrders';
@@ -69,6 +74,11 @@ function App() {
                 <Route path="/panier" element={<Cart />} />
                 <Route path="/connexion" element={<Login />} />
                 <Route path="/contact" element={<Contact />} />
+                <Route path="/faq" element={<FAQ />} />
+                <Route path="/livraison" element={<Livraison />} />
+                <Route path="/retours" element={<Retours />} />
+                <Route path="/cgv" element={<CGV />} />
+                <Route path="/confidentialite" element={<Confidentialite />} />
                 <Route path="/commander" element={<Checkout />} />
                 <Route path="/commande-confirmee/:id" element={<OrderConfirmation />} />
                 <Route path="/mes-commandes" element={<MyOrders />} />

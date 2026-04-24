@@ -5,6 +5,7 @@
 server {
     listen 80;
     server_name your-domain.com www.your-domain.com;  # change to your domain
+    client_max_body_size 6m;
 
     # Serve frontend static build
     root /var/www/moneymoney/frontend/build;
@@ -26,6 +27,9 @@ server {
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection 'upgrade';
         proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
         proxy_cache_bypass $http_upgrade;
     }
 

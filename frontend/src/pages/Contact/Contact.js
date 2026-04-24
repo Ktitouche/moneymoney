@@ -16,23 +16,27 @@ const Contact = () => {
                     <div className="contact-list">
                         <div className="contact-item">
                             <span className="contact-label">Téléphone</span>
-                            <a href="tel:+213557937423">+213 55 79 37 423</a>
+                            <a href="tel:+213654172718">+213 654 172 718</a>
+                            <br></br>
+                            <a href="tel:+2130549308911">+213 54 930 8911</a>
+                            <br></br>
                             <small>Dim–Jeu 9h00–18h00</small>
                         </div>
                         <div className="contact-item">
                             <span className="contact-label">Email</span>
-                            <a href="mailto:support@moneymoney.dz">support@moneymoney.dz</a>
+                            <a href="mailto:Decofeustudio18@gmail.com">Decofeustudio18@gmail.com</a>
+                            <br></br>
                             <small>Réponse sous 24h ouvrées</small>
                         </div>
                         <div className="contact-item">
                             <span className="contact-label">Adresse</span>
-                            <p className="no-margin">Bordj El Bahri Alger, Algérie</p>
+                            <p className="no-margin">Ben Zerga Alger, Algérie</p>
                             <small>Retrait sur rendez-vous</small>
                         </div>
                     </div>
 
                     <div className="cta-row">
-                        <a className="btn btn-primary" href="tel:+213557937423">Appeler maintenant</a>
+                        <a className="btn btn-primary" href="tel:+213654172718">Appeler maintenant</a>
                         <Link className="btn btn-outline" to="/produits">Voir les produits</Link>
                     </div>
                 </section>

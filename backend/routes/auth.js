@@ -22,6 +22,18 @@ const csrfCookieOptions = {
   maxAge: 7 * 24 * 60 * 60 * 1000
 };
 
+const authClearCookieOptions = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === 'production',
+  sameSite: 'lax'
+};
+
+const csrfClearCookieOptions = {
+  httpOnly: false,
+  secure: process.env.NODE_ENV === 'production',
+  sameSite: 'lax'
+};
+
 const normalizeEmail = (email) => String(email || '').trim().toLowerCase();
 const generateCsrfToken = () => crypto.randomBytes(32).toString('hex');
 
@@ -158,12 +170,8 @@ router.post('/deconnexion', auth, async (req, res) => {
   try {
     await User.findByIdAndUpdate(req.user.id, { $inc: { tokenVersion: 1 } });
 
-    res.clearCookie('auth_token', {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax'
-    });
-    res.clearCookie('csrf_token', csrfCookieOptions);
+    res.clearCookie('auth_token', authClearCookieOptions);
+    res.clearCookie('csrf_token', csrfClearCookieOptions);
     res.json({ message: 'Déconnexion réussie' });
   } catch (error) {
     res.status(500).json({ message: 'Erreur serveur' });

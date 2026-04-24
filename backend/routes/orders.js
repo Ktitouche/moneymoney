@@ -16,6 +16,51 @@ const guestOrderLimiter = rateLimit({
   message: { message: 'Trop de tentatives. Réessayez plus tard.' }
 });
 
+let transactionSupportPromise;
+
+const canUseTransactions = async () => {
+  if (!transactionSupportPromise) {
+    transactionSupportPromise = (async () => {
+      try {
+        const admin = mongoose.connection?.db?.admin?.();
+        if (!admin) {
+          return false;
+        }
+
+        const hello = await admin.command({ hello: 1 });
+        return Boolean(hello?.setName || hello?.msg === 'isdbgrid');
+      } catch (error) {
+        return false;
+      }
+    })();
+  }
+
+  return transactionSupportPromise;
+};
+
+const startOptionalTransaction = async () => {
+  let session = null;
+  let transactional = false;
+
+  try {
+    const supportsTransactions = await canUseTransactions();
+    if (!supportsTransactions) {
+      return { session: null, transactional: false };
+    }
+
+    session = await mongoose.startSession();
+    session.startTransaction();
+    transactional = true;
+  } catch (error) {
+    if (session) {
+      session.endSession();
+      session = null;
+    }
+  }
+
+  return { session, transactional };
+};
+
 const orderValidation = [
   body('produits').isArray({ min: 1 }).withMessage('Produits manquants'),
   body('produits.*.produit').isMongoId().withMessage('Produit invalide'),
@@ -26,13 +71,14 @@ const orderValidation = [
 
 // Créer une commande (utilisateur connecté)
 router.post('/', auth, orderValidation, async (req, res) => {
-  const session = await mongoose.startSession();
-  session.startTransaction();
+  const { session, transactional } = await startOptionalTransaction();
 
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      await session.abortTransaction();
+      if (transactional) {
+        await session.abortTransaction();
+      }
       return res.status(400).json({ errors: errors.array() });
     }
 
@@ -43,15 +89,23 @@ router.post('/', auth, orderValidation, async (req, res) => {
     const produitsCommande = [];
 
     for (const item of produits) {
-      const produit = await Product.findById(item.produit).session(session);
+      const query = Product.findById(item.produit);
+      if (session) {
+        query.session(session);
+      }
+      const produit = await query;
 
       if (!produit) {
-        await session.abortTransaction();
+        if (transactional) {
+          await session.abortTransaction();
+        }
         return res.status(404).json({ message: `Produit ${item.produit} non trouvé` });
       }
 
       if (produit.stock < item.quantite) {
-        await session.abortTransaction();
+        if (transactional) {
+          await session.abortTransaction();
+        }
         return res.status(400).json({ message: `Stock insuffisant pour ${produit.nom}` });
       }
 
@@ -67,14 +121,16 @@ router.post('/', auth, orderValidation, async (req, res) => {
 
     // Réduire le stock de manière atomique avec $inc
     for (const item of produits) {
-      const updatedProduct = await Product.findByIdAndUpdate(
-        item.produit,
+      const updatedProduct = await Product.findOneAndUpdate(
+        { _id: item.produit, stock: { $gte: item.quantite } },
         { $inc: { stock: -item.quantite } },
-        { new: true, session, runValidators: true }
+        { new: true, ...(session ? { session } : {}), runValidators: true }
       );
 
-      if (!updatedProduct || updatedProduct.stock < 0) {
-        await session.abortTransaction();
+      if (!updatedProduct) {
+        if (transactional) {
+          await session.abortTransaction();
+        }
         return res.status(400).json({ message: `Stock insuffisant pour ${item.produit}` });
       }
     }
@@ -94,15 +150,22 @@ router.post('/', auth, orderValidation, async (req, res) => {
     };
 
     const commande = new Order(orderData);
-    await commande.save({ session });
+    await commande.save(session ? { session } : undefined);
 
-    await session.commitTransaction();
+    if (transactional) {
+      await session.commitTransaction();
+    }
     res.status(201).json({ message: 'Commande créée avec succès', commande });
   } catch (error) {
-    await session.abortTransaction();
+    if (transactional) {
+      await session.abortTransaction();
+    }
+    console.error('Erreur création commande utilisateur:', error);
     res.status(500).json({ message: 'Erreur serveur' });
   } finally {
-    session.endSession();
+    if (session) {
+      session.endSession();
+    }
   }
 });
 
@@ -111,28 +174,33 @@ router.post('/guest', guestOrderLimiter, [
   ...orderValidation,
   body('clientGuest.nom').optional().isString().trim().isLength({ max: 80 }),
   body('clientGuest.prenom').optional().isString().trim().isLength({ max: 80 }),
-  body('clientGuest.email').optional().isEmail(),
+  body('clientGuest.email').optional({ checkFalsy: true }).isEmail(),
   body('clientGuest.telephone').optional().isString().trim().isLength({ max: 25 })
 ], async (req, res) => {
-  const session = await mongoose.startSession();
-  session.startTransaction();
+  const { session, transactional } = await startOptionalTransaction();
 
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      await session.abortTransaction();
+      if (transactional) {
+        await session.abortTransaction();
+      }
       return res.status(400).json({ errors: errors.array() });
     }
 
     const { produits, clientGuest, adresseLivraison, modePaiement, typeLivraison } = req.body;
 
     if (!clientGuest) {
-      await session.abortTransaction();
+      if (transactional) {
+        await session.abortTransaction();
+      }
       return res.status(400).json({ message: 'Informations invité manquantes' });
     }
 
     if (!Array.isArray(produits) || produits.length === 0) {
-      await session.abortTransaction();
+      if (transactional) {
+        await session.abortTransaction();
+      }
       return res.status(400).json({ message: 'Produits manquants' });
     }
 
@@ -141,13 +209,21 @@ router.post('/guest', guestOrderLimiter, [
 
     // Vérifier le stock et calculer le montant
     for (const item of produits) {
-      const produit = await Product.findById(item.produit).session(session);
+      const query = Product.findById(item.produit);
+      if (session) {
+        query.session(session);
+      }
+      const produit = await query;
       if (!produit) {
-        await session.abortTransaction();
+        if (transactional) {
+          await session.abortTransaction();
+        }
         return res.status(404).json({ message: `Produit ${item.produit} non trouvé` });
       }
       if (produit.stock < item.quantite) {
-        await session.abortTransaction();
+        if (transactional) {
+          await session.abortTransaction();
+        }
         return res.status(400).json({ message: `Stock insuffisant pour ${produit.nom}` });
       }
       const prix = produit.prixPromo || produit.prix;
@@ -157,14 +233,16 @@ router.post('/guest', guestOrderLimiter, [
 
     // Réduire le stock de manière atomique avec $inc
     for (const item of produits) {
-      const updatedProduct = await Product.findByIdAndUpdate(
-        item.produit,
+      const updatedProduct = await Product.findOneAndUpdate(
+        { _id: item.produit, stock: { $gte: item.quantite } },
         { $inc: { stock: -item.quantite } },
-        { new: true, session, runValidators: true }
+        { new: true, ...(session ? { session } : {}), runValidators: true }
       );
 
-      if (!updatedProduct || updatedProduct.stock < 0) {
-        await session.abortTransaction();
+      if (!updatedProduct) {
+        if (transactional) {
+          await session.abortTransaction();
+        }
         return res.status(400).json({ message: `Stock insuffisant pour ${item.produit}` });
       }
     }
@@ -188,14 +266,21 @@ router.post('/guest', guestOrderLimiter, [
       fraisLivraison: fees
     });
 
-    await commande.save({ session });
-    await session.commitTransaction();
+    await commande.save(session ? { session } : undefined);
+    if (transactional) {
+      await session.commitTransaction();
+    }
     res.status(201).json({ message: 'Commande invitée créée avec succès', commande });
   } catch (error) {
-    await session.abortTransaction();
+    if (transactional) {
+      await session.abortTransaction();
+    }
+    console.error('Erreur création commande invité:', error);
     res.status(500).json({ message: 'Erreur serveur' });
   } finally {
-    session.endSession();
+    if (session) {
+      session.endSession();
+    }
   }
 });
 

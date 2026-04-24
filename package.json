@@ -1,4 +1,24 @@
 {
+  "name": "moneymoney-ecommerce",
+  "version": "1.0.0",
+  "description": "Production-ready MERN e-commerce platform",
+  "private": true,
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
+  "scripts": {
+    "install-all": "npm install && npm install -w backend && npm install -w frontend"
+  },
+  "keywords": [
+    "ecommerce",
+    "mern",
+    "react",
+    "express",
+    "mongodb"
+  ],
+  "author": "",
+  "license": "ISC",
   "dependencies": {
     "bcryptjs": "^3.0.3",
     "jsonwebtoken": "^9.0.3"

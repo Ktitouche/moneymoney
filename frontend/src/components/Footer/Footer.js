@@ -15,8 +15,8 @@ const Footer = () => {
               Des pièces robustes, pensées pour vos soirées en plein air.
             </p>
             <div className="social-links">
-              <a href="https://www.facebook.com/profile.php?id=61580923483075"><FaFacebook /></a>
-              <a href="https://www.instagram.com/koulchi_w_walou"><FaInstagram /></a>
+              <a href="https://www.facebook.com/decofeu1600/"><FaFacebook /></a>
+              <a href="https://www.instagram.com/decofeu/"><FaInstagram /></a>
             </div>
           </div>
 
@@ -58,7 +58,7 @@ const Footer = () => {
         </div>
 
         <div className="footer-bottom">
-          <p>&copy; 2026 Maison Brasero. Tous droits réservés.</p>
+          <p>&copy; 2026 Deco Feu. Tous droits réservés.</p>
         </div>
       </div>
     </footer>

@@ -45,6 +45,10 @@ JWT_SECRET=your_32_plus_char_random_secret
 CORS_ORIGIN=https://your-domain.com,https://www.your-domain.com
 ```
 
+Notes:
+- `JWT_SECRET` must be at least 32 characters (backend startup enforces this).
+- `CORS_ORIGIN` accepts a comma-separated allowlist. Include every frontend origin you will use.
+
 ## 4) Frontend Setup
 
 ```bash
@@ -89,13 +93,18 @@ pm2 logs moneymoney-api
 Use deployment/nginx.conf.example as base.
 
 Main checks:
-- root points to frontend/build
-- /api/ proxies to 127.0.0.1:5000/api/
-- /uploads/ proxies to 127.0.0.1:5000/uploads/
+- root points to `frontend/build`
+- `/api/` proxies to `127.0.0.1:5000/api/`
+- `/uploads/` proxies to `127.0.0.1:5000/uploads/`
+- add `client_max_body_size 6m;` in `server {}` to allow product image uploads up to backend limit (5MB)
 
-Enable and reload:
+Install site config:
 
 ```bash
+sudo cp /var/www/moneymoney/deployment/nginx.conf.example /etc/nginx/sites-available/moneymoney
+sudo nano /etc/nginx/sites-available/moneymoney
+sudo ln -sf /etc/nginx/sites-available/moneymoney /etc/nginx/sites-enabled/moneymoney
+sudo rm -f /etc/nginx/sites-enabled/default
 sudo nginx -t
 sudo systemctl reload nginx
 ```
@@ -118,6 +127,7 @@ sudo certbot renew --dry-run
 - Verify product listing
 - Verify login flow
 - Verify checkout path
+- Verify product image upload (admin) with an image > 1MB
 
 ### Server checks
 
@@ -149,6 +159,12 @@ npm run build
 cd ..
 pm2 restart moneymoney-api
 sudo systemctl reload nginx
+```
+
+If backend dependencies changed significantly, run:
+
+```bash
+pm2 restart moneymoney-api --update-env
 ```
 
 ## 10) Rollback Plan

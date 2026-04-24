@@ -127,11 +127,6 @@ const Home = () => {
         <div className="container">
           <div className="features-grid">
             <div className="feature-card">
-              <div className="feature-icon">🚚</div>
-              <h3>Livraison gratuite</h3>
-              <p>Pour toute commande supérieure à 10 000 DA</p>
-            </div>
-            <div className="feature-card">
               <div className="feature-icon">💳</div>
               <h3>Paiement Sécurisé</h3>
               <p>Vos transactions sont 100% sécurisées</p>

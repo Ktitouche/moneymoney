@@ -115,12 +115,6 @@ const Cart = () => {
               <span>{(getCartTotal() + (getCartTotal() >= 50 ? 0 : 5)).toFixed(2)} DA</span>
             </div>
 
-            {getCartTotal() < 50 && (
-              <p className="free-shipping-msg">
-                Ajoutez {(50 - getCartTotal()).toFixed(2)} DA pour bénéficier de la livraison gratuite
-              </p>
-            )}
-
             <button onClick={handleCheckout} className="btn btn-primary btn-checkout">
               Passer la commande
             </button>
