@@ -1,0 +1,109 @@
+.info-page {
+    padding: 3rem 0;
+    background: linear-gradient(135deg, #fff8ef 0%, #fffdf9 55%, #fff3e5 100%);
+}
+
+.info-wrap {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+.info-header {
+    margin-bottom: 1.25rem;
+}
+
+.info-eyebrow {
+    display: inline-block;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 700;
+    font-size: 0.76rem;
+    color: #a44518;
+    margin-bottom: 0.35rem;
+}
+
+.info-title {
+    margin: 0;
+    font-size: clamp(1.6rem, 2.4vw, 2.25rem);
+    color: #25160f;
+}
+
+.info-intro {
+    color: #5d4b41;
+    margin: 0.65rem 0 0;
+    max-width: 76ch;
+}
+
+.info-card {
+    background: #fffdf9;
+    border: 1px solid #edd7c1;
+    border-radius: 14px;
+    padding: 1.1rem 1.15rem;
+    margin-top: 0.9rem;
+    box-shadow: 0 8px 22px rgba(57, 27, 12, 0.06);
+}
+
+.info-card h2,
+.info-card h3 {
+    margin-top: 0;
+    color: #2f1b10;
+}
+
+.info-card p {
+    color: #5d4b41;
+    line-height: 1.62;
+}
+
+.info-list {
+    margin: 0.55rem 0 0;
+    padding-left: 1rem;
+    color: #5d4b41;
+    line-height: 1.62;
+}
+
+.info-list li {
+    margin-bottom: 0.35rem;
+}
+
+.faq-item+.faq-item {
+    margin-top: 0.9rem;
+    padding-top: 0.9rem;
+    border-top: 1px dashed #efd4bb;
+}
+
+.faq-item h3 {
+    margin: 0 0 0.4rem;
+    font-size: 1.03rem;
+}
+
+.info-alert {
+    margin-top: 1rem;
+    padding: 0.85rem 1rem;
+    border-radius: 10px;
+    border: 1px solid #f0c5a3;
+    background: #fff4ea;
+    color: #5d3b2a;
+}
+
+.info-contact {
+    margin-top: 1rem;
+    font-weight: 600;
+    color: #a44518;
+}
+
+.info-contact a {
+    color: #a44518;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+}
+
+@media (max-width: 768px) {
+    .info-page {
+        padding: 2.1rem 0;
+    }
+
+    .info-card {
+        padding: 1rem;
+    }
+}
