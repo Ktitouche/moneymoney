@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { FaShoppingCart, FaUser, FaSearch, FaBars, FaBell } from 'react-icons/fa';
+import { FaShoppingCart, FaUser, FaSearch, FaBars, FaBell, FaFire } from 'react-icons/fa';
 import { AuthContext } from '../../context/AuthContext';
 import { CartContext } from '../../context/CartContext';
 import api from '../../utils/api';
@@ -19,6 +19,7 @@ const Header = () => {
   const [notifLoading, setNotifLoading] = useState(false);
   const [notifError, setNotifError] = useState('');
   const [notifHasNew, setNotifHasNew] = useState(false);
+  const [logoImageError, setLogoImageError] = useState(false);
   const location = useLocation();
   const [dismissedIds, setDismissedIds] = useState(() => {
     try {
@@ -148,6 +149,18 @@ const Header = () => {
         <div className="container">
           <div className="header-content">
             <Link to="/" className="logo">
+              <span className="logo-mark" aria-hidden="true">
+                {!logoImageError ? (
+                  <img
+                    src="/logo.png"
+                    alt=""
+                    className="logo-image"
+                    onError={() => setLogoImageError(true)}
+                  />
+                ) : (
+                  <FaFire />
+                )}
+              </span>
               <h1>Deco Feu</h1>
             </Link>
 

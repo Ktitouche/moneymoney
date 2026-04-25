@@ -263,6 +263,42 @@ button[type="submit"],
   color: #9b2c17;
 }
 
+.hero-settings-card {
+  background: #fff7ef;
+  border: 1px solid #f1d9c0;
+  border-radius: 10px;
+  padding: 16px 18px;
+  margin-bottom: 1.5rem;
+}
+
+.hero-settings-card h3 {
+  margin: 0 0 6px;
+}
+
+.hero-settings-card p {
+  margin: 0 0 10px;
+  color: #5b321d;
+}
+
+.hero-settings-card textarea {
+  width: 100%;
+  min-height: 110px;
+  resize: vertical;
+}
+
+.hero-settings-actions {
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.hero-settings-actions span {
+  color: #7f4a18;
+  font-size: 13px;
+}
+
 @media (max-width: 1024px) {
   .admin-layout {
     grid-template-columns: 1fr;
@@ -430,4 +466,3 @@ tbody tr:hover {
     max-height: 95vh;
   }
 }
-

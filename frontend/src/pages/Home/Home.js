@@ -4,10 +4,13 @@ import api from '../../utils/api';
 import ProductCard from '../../components/ProductCard/ProductCard';
 import './Home.css';
 
+const DEFAULT_HERO_TEXT = 'Decouvrez nos produits de qualite a prix imbattables';
+
 const Home = () => {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [featuredProducts, setFeaturedProducts] = useState([]);
+  const [heroText, setHeroText] = useState(DEFAULT_HERO_TEXT);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -16,15 +19,17 @@ const Home = () => {
 
   const fetchData = async () => {
     try {
-      const [productsRes, categoriesRes, featuredRes] = await Promise.all([
+      const [productsRes, categoriesRes, featuredRes, heroRes] = await Promise.all([
         api.get('/products?limite=8'),
         api.get('/categories'),
-        api.get('/products?enVedette=true&limite=4')
+        api.get('/products?enVedette=true&limite=4'),
+        api.get('/settings/hero').catch(() => ({ data: { heroText: DEFAULT_HERO_TEXT } }))
       ]);
 
       setProducts(productsRes.data.produits || []);
       setCategories(categoriesRes.data || []);
       setFeaturedProducts(featuredRes.data.produits || []);
+      setHeroText(heroRes.data?.heroText || DEFAULT_HERO_TEXT);
       setLoading(false);
     } catch (error) {
       // Erreur silencieuse
@@ -43,7 +48,7 @@ const Home = () => {
         <div className="container">
           <div className="hero-content">
             <h1>Bienvenue dans votre boutique</h1>
-            <p>Découvrez nos produits de qualité à prix imbattables</p>
+            <p>{heroText}</p>
             <Link to="/produits" className="btn btn-primary btn-large">
               Voir tous les produits
             </Link>
