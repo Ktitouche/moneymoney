@@ -7,7 +7,7 @@ import { toast } from 'react-toastify';
 
 const ProductCard = ({ product }) => {
   const { addToCart } = useContext(CartContext);
-  const API_URL = process.env.REACT_APP_API_URL?.replace('/api', '') || 'http://localhost:5000';
+  const API_URL = process.env.REACT_APP_BASE_URL || 'http://localhost:5000';
   const firstImage = product.images && product.images.length > 0 ? product.images[0] : null;
   const imageSrc = firstImage
     ? (firstImage.startsWith('http') ? firstImage : `${API_URL}/${firstImage}`)

@@ -69,7 +69,7 @@ const Home = () => {
                         src={
                           category.image.startsWith('http')
                             ? category.image
-                            : `${process.env.REACT_APP_API_URL?.replace('/api', '') || 'http://localhost:5000'}/${category.image.replace(/\\/g, '/')}`
+                            : `${process.env.REACT_APP_BASE_URL || 'http://localhost:5000'}/${category.image.replace(/\\/g, '/')}`
                         }
                         alt={category.nom}
                         onError={(e) => {

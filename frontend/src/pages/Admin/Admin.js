@@ -802,7 +802,7 @@ const CategoriesManagement = () => {
                   <td>
                     {c.image ? (
                       <img
-                        src={c.image.startsWith('http') ? c.image : `${process.env.REACT_APP_API_URL?.replace('/api', '') || 'http://localhost:5000'}/${c.image}`}
+                        src={c.image.startsWith('http') ? c.image : `${process.env.REACT_APP_BASE_URL || 'http://localhost:5000'}/${c.image}`}
                         alt={c.nom}
                         style={{ height: 40, width: 40, objectFit: 'cover', borderRadius: '4px' }}
                       />
