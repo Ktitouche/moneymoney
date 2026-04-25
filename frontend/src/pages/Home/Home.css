@@ -35,6 +35,9 @@
   font-size: 1.3rem;
   margin-bottom: 2rem;
   opacity: 0.95;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .btn-large {

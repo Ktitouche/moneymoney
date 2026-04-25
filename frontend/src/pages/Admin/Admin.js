@@ -5,6 +5,8 @@ import api from '../../utils/api';
 import { toast } from 'react-toastify';
 import './Admin.css';
 
+const DEFAULT_HERO_TEXT = 'Decouvrez nos produits de qualite a prix imbattables';
+
 const Admin = () => {
   const { user, loading } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -17,6 +19,9 @@ const Admin = () => {
     }
   });
   const [notificationStatus, setNotificationStatus] = useState('unknown');
+  const [heroText, setHeroText] = useState(DEFAULT_HERO_TEXT);
+  const [heroTextLoading, setHeroTextLoading] = useState(false);
+  const [heroTextSaving, setHeroTextSaving] = useState(false);
 
   useEffect(() => {
     // Attendre la fin du chargement de l'authentification
@@ -170,6 +175,43 @@ const Admin = () => {
     }
   };
 
+  const loadHeroText = async () => {
+    try {
+      setHeroTextLoading(true);
+      const res = await api.get('/settings/hero');
+      setHeroText(res.data?.heroText || DEFAULT_HERO_TEXT);
+    } catch (err) {
+      setHeroText(DEFAULT_HERO_TEXT);
+    } finally {
+      setHeroTextLoading(false);
+    }
+  };
+
+  const saveHeroText = async () => {
+    const trimmed = String(heroText || '').trim();
+    if (!trimmed) {
+      toast.error('Le texte hero ne peut pas etre vide.');
+      return;
+    }
+
+    try {
+      setHeroTextSaving(true);
+      const res = await api.put('/settings/hero', { heroText: trimmed });
+      setHeroText(res.data?.heroText || trimmed);
+      toast.success('Texte hero mis a jour avec succes.');
+    } catch (err) {
+      toast.error(err?.response?.data?.message || 'Impossible de mettre a jour le texte hero.');
+    } finally {
+      setHeroTextSaving(false);
+    }
+  };
+
+  useEffect(() => {
+    if (loading) return;
+    if (!user || user.role !== 'admin') return;
+    loadHeroText();
+  }, [loading, user]);
+
   if (loading || !user) {
     return (
       <div className="admin-page">
@@ -214,6 +256,11 @@ const Admin = () => {
                   <Dashboard
                     notificationStatus={notificationStatus}
                     onEnableNotifications={requestNotificationPermission}
+                    heroText={heroText}
+                    onHeroTextChange={setHeroText}
+                    onSaveHeroText={saveHeroText}
+                    heroTextLoading={heroTextLoading}
+                    heroTextSaving={heroTextSaving}
                   />
                 }
               />
@@ -229,7 +276,15 @@ const Admin = () => {
   );
 };
 
-const Dashboard = ({ notificationStatus, onEnableNotifications }) => {
+const Dashboard = ({
+  notificationStatus,
+  onEnableNotifications,
+  heroText,
+  onHeroTextChange,
+  onSaveHeroText,
+  heroTextLoading,
+  heroTextSaving,
+}) => {
   const statusLabel = (() => {
     if (notificationStatus === 'granted') return 'Activées';
     if (notificationStatus === 'denied') return 'Bloquées (via le cadenas du navigateur)';
@@ -256,6 +311,25 @@ const Dashboard = ({ notificationStatus, onEnableNotifications }) => {
           <div className="notif-status success">Notifications actives</div>
         )}
       </div>
+
+      <div className="hero-settings-card">
+        <h3>Texte principal de la page d'accueil</h3>
+        <p>Ce texte s'affiche dans le paragraphe de la section hero.</p>
+        <textarea
+          value={heroText}
+          onChange={(e) => onHeroTextChange(e.target.value)}
+          placeholder="Entrez le texte du hero"
+          maxLength={500}
+          disabled={heroTextLoading || heroTextSaving}
+        />
+        <div className="hero-settings-actions">
+          <span>{(heroText || '').length}/500</span>
+          <button onClick={onSaveHeroText} disabled={heroTextLoading || heroTextSaving}>
+            {heroTextSaving ? 'Enregistrement...' : 'Enregistrer le texte'}
+          </button>
+        </div>
+      </div>
+
       <div className="stats-grid">
         <div className="stat-card">
           <h3>Ventes du mois</h3>

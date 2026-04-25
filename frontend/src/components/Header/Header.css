@@ -17,6 +17,28 @@
   gap: 2rem;
 }
 
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.logo-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  color: #e25822;
+  font-size: 2rem;
+}
+
+.logo-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
 .logo h1 {
   color: #e25822;
   font-size: 2rem;
@@ -385,9 +407,16 @@
     order: 1;
     width: 100%;
     text-align: center;
+    justify-content: center;
   }
 
   .logo h1 {
+    font-size: 1.5rem;
+  }
+
+  .logo-mark {
+    width: 44px;
+    height: 44px;
     font-size: 1.5rem;
   }
 
