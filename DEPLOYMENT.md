@@ -59,9 +59,9 @@ npm install
 Set production vars in frontend/.env.production:
 
 ```env
-REACT_APP_API_URL=https://your-domain.com/api
-REACT_APP_META_PIXEL_ID=YOUR_META_PIXEL_ID
-REACT_APP_META_CURRENCY=DZD
+VITE_API_URL=https://your-domain.com/api
+VITE_META_PIXEL_ID=YOUR_META_PIXEL_ID
+VITE_META_CURRENCY=DZD
 ```
 
 Build frontend:
@@ -109,7 +109,29 @@ sudo nginx -t
 sudo systemctl reload nginx
 ```
 
-## 7) HTTPS
+## 7) Update Deployed Site (after git push)
+
+```bash
+cd /var/www/moneymoney
+git pull
+
+# Backend
+cd backend
+npm install --omit=dev
+cd ..
+
+# Frontend
+cd frontend
+npm install
+npm run build
+cd ..
+
+# Restart backend
+pm2 restart moneymoney-api
+pm2 save
+```
+
+## 8) HTTPS
 
 Install certbot and issue certs:
 
