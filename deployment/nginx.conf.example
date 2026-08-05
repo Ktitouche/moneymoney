@@ -5,7 +5,7 @@
 server {
     listen 80;
     server_name your-domain.com www.your-domain.com;  # change to your domain
-    client_max_body_size 6m;
+    client_max_body_size 30m;
 
     # Serve frontend static build
     root /var/www/moneymoney/frontend/build;
