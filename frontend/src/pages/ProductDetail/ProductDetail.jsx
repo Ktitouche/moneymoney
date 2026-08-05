@@ -48,7 +48,7 @@ const ProductDetail = () => {
       contents: [{ id: String(product._id), quantity, item_price: Number(price) }],
       content_type: 'product',
       value: Number(price) * quantity,
-      currency: process.env.REACT_APP_META_CURRENCY || 'DZD'
+      currency: import.meta.env.VITE_META_CURRENCY || 'DZD'
     });
     toast.success(`${quantity} ${quantity > 1 ? 'produits ajoutés' : 'produit ajouté'} au panier !`);
   };

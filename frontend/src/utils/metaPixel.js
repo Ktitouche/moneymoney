@@ -1,5 +1,5 @@
-const META_PIXEL_ID = process.env.REACT_APP_META_PIXEL_ID;
-const META_CURRENCY = process.env.REACT_APP_META_CURRENCY || 'DZD';
+const META_PIXEL_ID = import.meta.env.VITE_META_PIXEL_ID;
+const META_CURRENCY = import.meta.env.VITE_META_CURRENCY || 'DZD';
 
 const toNumber = (value) => {
     const parsed = Number(value);

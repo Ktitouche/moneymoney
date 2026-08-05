@@ -35,7 +35,7 @@ const OrderConfirmation = () => {
     const products = Array.isArray(order.produits) ? order.produits : [];
     trackMetaEvent('Purchase', {
       value: Number(order.montantTotal) || 0,
-      currency: process.env.REACT_APP_META_CURRENCY || 'DZD',
+      currency: import.meta.env.VITE_META_CURRENCY || 'DZD',
       content_type: 'product',
       content_ids: products
         .map((item) => item?.produit?._id || item?.produit)

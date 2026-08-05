@@ -13,12 +13,21 @@ const app = express();
 
 app.set('trust proxy', 1);
 
+const startupErrors = [];
+
 if (!process.env.MONGODB_URI) {
-  throw new Error('MONGODB_URI is required');
+  startupErrors.push('MONGODB_URI is required');
 }
 
 if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 32) {
-  throw new Error('JWT_SECRET must be set and at least 32 characters long');
+  startupErrors.push('JWT_SECRET must be set and at least 32 characters long');
+}
+
+if (startupErrors.length > 0) {
+  console.error('Backend startup aborted:');
+  startupErrors.forEach((error) => console.error(`- ${error}`));
+  console.error('Create backend/.env from backend/.env.example before starting the server.');
+  process.exit(1);
 }
 
 const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:3000')

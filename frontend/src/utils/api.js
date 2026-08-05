@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = process.env.REACT_APP_API_URL || `${window.location.origin}/api`;
+const API_URL = import.meta.env.VITE_API_URL || `${window.location.origin}/api`;
 const CSRF_HEADER_NAME = 'x-csrf-token';
 
 const getCookieValue = (name) => {
