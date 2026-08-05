@@ -72,6 +72,8 @@ mongoose.connect(process.env.MONGODB_URI)
   .catch((err) => console.error('✗ Erreur de connexion MongoDB:', err));
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`✓ Serveur démarré sur le port ${PORT}`);
+const HOST = process.env.NODE_ENV === 'production' ? '127.0.0.1' : '0.0.0.0';
+
+app.listen(PORT, HOST, () => {
+  console.log(`✓ Serveur démarré sur ${HOST}:${PORT}`);
 });

@@ -55,8 +55,9 @@ const authLimiter = rateLimit({
 router.post('/inscription', authLimiter, [
   body('email').isEmail().withMessage('Email invalide').normalizeEmail(),
   body('motDePasse').isLength({ min: 8 }).withMessage('Le mot de passe doit contenir au moins 8 caractères'),
-  body('nom').trim().notEmpty().withMessage('Le nom est requis'),
-  body('prenom').trim().notEmpty().withMessage('Le prénom est requis')
+  body('nom').trim().notEmpty().isLength({ max: 80 }).withMessage('Le nom est requis et ne doit pas dépasser 80 caractères'),
+  body('prenom').trim().notEmpty().isLength({ max: 80 }).withMessage('Le prénom est requis et ne doit pas dépasser 80 caractères'),
+  body('telephone').optional().trim().isLength({ max: 25 }).withMessage('Téléphone invalide')
 ], async (req, res) => {
   try {
     const errors = validationResult(req);

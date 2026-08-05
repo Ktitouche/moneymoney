@@ -54,6 +54,9 @@ router.get('/', async (req, res) => {
 // Obtenir un produit par ID (public)
 router.get('/:id', async (req, res) => {
   try {
+    if (!req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
+      return res.status(400).json({ message: 'Identifiant invalide' });
+    }
     const produit = await Product.findById(req.params.id).populate('categorie', 'nom description');
 
     if (!produit) {
@@ -106,6 +109,9 @@ router.post('/', auth, isAdmin, upload.array('images', 5), validateUploadedImage
 // Mettre à jour un produit (admin uniquement)
 router.put('/:id', auth, isAdmin, upload.array('images', 5), validateUploadedImages, async (req, res) => {
   try {
+    if (!req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
+      return res.status(400).json({ message: 'Identifiant invalide' });
+    }
     const { nom, description, prix, prixPromo, categorie, stock, marque, caracteristiques, enVedette } = req.body;
     const images = req.files ? req.files.map((file) => file.path) : [];
 
@@ -154,6 +160,9 @@ router.put('/:id', auth, isAdmin, upload.array('images', 5), validateUploadedIma
 // Supprimer un produit (admin uniquement)
 router.delete('/:id', auth, isAdmin, async (req, res) => {
   try {
+    if (!req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
+      return res.status(400).json({ message: 'Identifiant invalide' });
+    }
     const produit = await Product.findByIdAndDelete(req.params.id);
 
     if (!produit) {
