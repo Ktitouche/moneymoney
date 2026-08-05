@@ -74,16 +74,16 @@ const Home = () => {
                         src={
                           category.image.startsWith('http')
                             ? category.image
-                            : `${process.env.REACT_APP_BASE_URL || 'http://localhost:5000'}/${category.image.replace(/\\/g, '/')}`
+                            : `${window.location.origin}/${category.image.replace(/\\/g, '/')}`
                         }
                         alt={category.nom}
                         onError={(e) => {
-                          e.target.src = 'https://via.placeholder.com/200x200?text=Categorie';
+                          e.target.src = '/logo.png';
                         }}
                       />
                     ) : (
                       <img
-                        src="https://via.placeholder.com/200x200?text=Categorie"
+                        src="/logo.png"
                         alt={category.nom}
                       />
                     )}

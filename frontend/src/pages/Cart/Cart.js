@@ -7,7 +7,7 @@ import './Cart.css';
 const Cart = () => {
   const { cart, removeFromCart, updateQuantity, getCartTotal, clearCart } = useContext(CartContext);
   const navigate = useNavigate();
-  const API_URL = process.env.REACT_APP_BASE_URL || 'http://localhost:5000';
+  const API_URL = window.location.origin;
 
   const handleCheckout = () => {
     navigate('/commander');
@@ -52,10 +52,10 @@ const Cart = () => {
                 <div key={item._id} className="cart-item">
                   <div className="item-product">
                     <img
-                      src={item.images?.[0] ? `${API_URL}/${item.images[0]}` : 'https://via.placeholder.com/100x100?text=Produit'}
+                      src={item.images?.[0] ? `${API_URL}/${item.images[0]}` : '/logo.png'}
                       alt={item.nom}
                       onError={(e) => {
-                        e.target.src = 'https://via.placeholder.com/100x100?text=Produit';
+                        e.target.src = '/logo.png';
                       }}
                     />
                     <div className="item-info">

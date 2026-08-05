@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+const API_URL = process.env.REACT_APP_API_URL || `${window.location.origin}/api`;
 const CSRF_HEADER_NAME = 'x-csrf-token';
 
 const getCookieValue = (name) => {
@@ -15,9 +15,8 @@ const api = axios.create({
   withCredentials: true,
 });
 
-// L'auth se fait via cookie HttpOnly envoyé automatiquement.
+// L'auth se fait via cookie HttpOnly envoye automatiquement.
 api.interceptors.request.use((config) => {
-  // Définir Content-Type seulement si ce n'est pas FormData
   if (!(config.data instanceof FormData)) {
     config.headers['Content-Type'] = 'application/json';
   }

@@ -16,7 +16,7 @@ const ProductDetail = () => {
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState(0);
   const [showLightbox, setShowLightbox] = useState(false);
-  const API_URL = process.env.REACT_APP_BASE_URL || 'http://localhost:5000';
+  const API_URL = window.location.origin;
 
   const fetchProduct = useCallback(async () => {
     try {
@@ -119,12 +119,12 @@ const ProductDetail = () => {
                   onClick={openLightbox}
                   style={{ cursor: 'pointer' }}
                   onError={(e) => {
-                    e.target.src = 'https://via.placeholder.com/600x600?text=Produit';
+                    e.target.src = '/logo.png';
                   }}
                 />
               ) : (
                 <img
-                  src="https://via.placeholder.com/600x600?text=Produit"
+                  src="/logo.png"
                   alt={product.nom}
                 />
               )}
@@ -150,7 +150,7 @@ const ProductDetail = () => {
                     className={selectedImage === index ? 'active' : ''}
                     onClick={() => setSelectedImage(index)}
                     onError={(e) => {
-                      e.target.src = 'https://via.placeholder.com/100x100?text=Img';
+                      e.target.src = '/logo.png';
                     }}
                   />
                 ))}
@@ -240,7 +240,7 @@ const ProductDetail = () => {
               src={buildImageUrl(product.images[selectedImage])}
               alt={product.nom}
               onError={(e) => {
-                e.target.src = 'https://via.placeholder.com/800x800?text=Produit';
+                e.target.src = '/logo.png';
               }}
             />
             {product.images.length > 1 && (

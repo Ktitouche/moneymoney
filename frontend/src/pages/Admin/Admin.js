@@ -83,7 +83,7 @@ const Admin = () => {
 
           const notification = new Notification('🛒 Nouvelle commande', {
             body: body.trim(),
-            icon: 'https://via.placeholder.com/96?text=Shop',
+            icon: '/logo.png',
             requireInteraction: true,
             tag: `order-${latest._id}`,
             silent: false,
@@ -876,7 +876,7 @@ const CategoriesManagement = () => {
                   <td>
                     {c.image ? (
                       <img
-                        src={c.image.startsWith('http') ? c.image : `${process.env.REACT_APP_BASE_URL || 'http://localhost:5000'}/${c.image}`}
+                        src={c.image.startsWith('http') ? c.image : `${window.location.origin}/${c.image}`}
                         alt={c.nom}
                         style={{ height: 40, width: 40, objectFit: 'cover', borderRadius: '4px' }}
                       />

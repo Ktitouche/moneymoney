@@ -7,11 +7,11 @@ import { toast } from 'react-toastify';
 
 const ProductCard = ({ product }) => {
   const { addToCart } = useContext(CartContext);
-  const API_URL = process.env.REACT_APP_BASE_URL || 'http://localhost:5000';
+  const API_URL = window.location.origin;
   const firstImage = product.images && product.images.length > 0 ? product.images[0] : null;
   const imageSrc = firstImage
     ? (firstImage.startsWith('http') ? firstImage : `${API_URL}/${firstImage}`)
-    : 'https://via.placeholder.com/300x300?text=Produit';
+    : '/logo.png';
 
   const handleAddToCart = (e) => {
     e.preventDefault();
@@ -35,7 +35,7 @@ const ProductCard = ({ product }) => {
             src={imageSrc}
             alt={product.nom}
             onError={(e) => {
-              e.target.src = 'https://via.placeholder.com/300x300?text=Produit';
+              e.target.src = '/logo.png';
             }}
           />
           {product.stock === 0 && (
